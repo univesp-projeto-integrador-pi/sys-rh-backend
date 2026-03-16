@@ -159,5 +159,4 @@ Este projeto está sob a licença [MIT](LICENSE).
 
 ---
 
-**Desenvolvido por [Univesp Projeto Integrador](https://github.com/univesp-projeto-integrador-pi/sys-rh-backend)** 👨‍💻
-```
+**Desenvolvido por [Univesp Projeto Integrador](https://github.com/univesp-projeto-integrador-pi)** 👨‍💻
