@@ -31,4 +31,4 @@ build/
 
 # Variáveis de ambiente
 .env
-/src/generated
+generated/
