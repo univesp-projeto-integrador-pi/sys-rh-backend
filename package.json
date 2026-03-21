@@ -14,16 +14,19 @@
     "express",
     "recursos-humanos"
   ],
-  "author": "Seu Nome",
+  "author": "rh-api",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^17.0.0",
+    "@prisma/adapter-pg": "^7.5.0",
+    "@prisma/client": "^7.5.0",
+    "dotenv": "^17.3.1",
     "express": "^5.0.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.5.0",
     "nodemon": "^3.1.14",
+    "prisma": "^7.5.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
