@@ -110,19 +110,6 @@ docker compose down
 docker compose down -v
 ```
 
-### Método 2: Dockerfile manual
-
-```bash
-# Construir a imagem
-docker build -t sys-rh-backend .
-
-# Executar o container (necessário ter PostgreSQL rodando)
-docker run -p 3000:3000 \
-  -e DATABASE_URL="postgresql://user:password@host:5432/dbname" \
-  -e NODE_ENV=production \
-  sys-rh-backend
-```
-
 ### Configuração do Docker Compose
 
 O arquivo `docker-compose.yml` inclui:
