@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String         @id @default(uuid())
+  name      String
+  email     String         @unique
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  notes     InternalNote[]
+
+  @@map("users")
+}
+
+model Skill {
+  id      String        @id @default(uuid())
+  name    String        @unique
+  resumes ResumeSkill[]
+
+  @@map("skills")
+}
+
+model Department {
+  id               String            @id @default(uuid())
+  name             String            @unique
+  internalProfiles InternalProfile[]
+  positions        JobPosition[]
+
+  @@map("departments")
+}
+
+model Candidate {
+  id              String           @id @default(uuid())
+  fullName        String
+  email           String           @unique
+  phone           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  deletedAt       DateTime?
+  internalProfile InternalProfile?
+  applications    JobApplication[]
+  resume          Resume?
+
+  @@map("candidates")
+}
+
+model Resume {
+  id          String                   @id @default(uuid())
+  summary     String?
+  fileUrl     String?
+  rawText     String?
+  createdAt   DateTime                 @default(now())
+  updatedAt   DateTime                 @updatedAt
+  candidateId String                   @unique
+  educations  Education[]
+  experiences ProfessionalExperience[]
+  skills      ResumeSkill[]
+  candidate   Candidate                @relation(fields: [candidateId], references: [id])
+
+  @@map("resumes")
+}
+
+model ProfessionalExperience {
+  id          String    @id @default(uuid())
+  companyName String
+  jobTitle    String
+  startDate   DateTime
+  endDate     DateTime?
+  isCurrent   Boolean   @default(false)
+  description String?
+  resumeId    String
+  resume      Resume    @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@map("professional_experiences")
+}
+
+model Education {
+  id           String    @id @default(uuid())
+  institution  String
+  degree       String
+  fieldOfStudy String?
+  startDate    DateTime
+  endDate      DateTime?
+  resumeId     String
+  resume       Resume    @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@map("educations")
+}
+
+model ResumeSkill {
+  resumeId String
+  skillId  String
+  resume   Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  skill    Skill  @relation(fields: [skillId], references: [id])
+
+  @@id([resumeId, skillId])
+  @@map("resume_skills")
+}
+
+model JobPosition {
+  id           String           @id @default(uuid())
+  title        String
+  description  String?
+  status       JobStatus        @default(OPEN)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  departmentId String
+  applications JobApplication[]
+  department   Department       @relation(fields: [departmentId], references: [id])
+
+  @@map("job_positions")
+}
+
+model JobApplication {
+  id           String           @id @default(uuid())
+  currentStage ApplicationStage @default(APPLIED)
+  appliedAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  deletedAt    DateTime?
+  candidateId  String
+  positionId   String
+  notes        InternalNote[]
+  candidate    Candidate        @relation(fields: [candidateId], references: [id])
+  position     JobPosition      @relation(fields: [positionId], references: [id])
+
+  @@map("job_applications")
+}
+
+model InternalNote {
+  id            String         @id @default(uuid())
+  content       String
+  rating        Int?
+  createdAt     DateTime       @default(now())
+  applicationId String
+  authorId      String
+  application   JobApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  author        User           @relation(fields: [authorId], references: [id])
+
+  @@map("internal_notes")
+}
+
+model InternalProfile {
+  id              String            @id @default(uuid())
+  employeeCode    String            @unique
+  currentJobTitle String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  candidateId     String            @unique
+  departmentId    String
+  managerId       String?
+  candidate       Candidate         @relation(fields: [candidateId], references: [id])
+  department      Department        @relation(fields: [departmentId], references: [id])
+  manager         InternalProfile?  @relation("ManagerSubordinates", fields: [managerId], references: [id])
+  subordinates    InternalProfile[] @relation("ManagerSubordinates")
+
+  @@map("internal_profiles")
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+  PAUSED
+}
+
+enum ApplicationStage {
+  APPLIED
+  SCREENING
+  INTERVIEW
+  OFFER
+  HIRED
+  REJECTED
+}
