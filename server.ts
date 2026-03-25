@@ -1,4 +1,6 @@
 import express from 'express';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './src/config/swagger';
 import userRoutes from './src/routes/user.routes';
 import departmentRoutes from './src/routes/department.routes';
 import candidateRoutes from './src/routes/candidate.routes';
@@ -8,6 +10,9 @@ import jobApplicationRoutes from './src/routes/jobApplication.routes';
 const app = express();
 
 app.use(express.json());
+
+// Swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // rotas internas
 app.use('/api/users',            userRoutes);
