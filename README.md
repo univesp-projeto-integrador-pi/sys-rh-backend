@@ -116,6 +116,11 @@ Candidate ──┤              │
                             └── InternalNote ── User
 ```
 
+---
+### Imagem do Swagger
+![Veja o Swagger](swagger.png)
+---
+
 ## 📚 Sobre o Express
 
 [Express](https://expressjs.com/) é um framework para Node.js que fornece recursos mínimos para construção de servidores web. Algumas características:
