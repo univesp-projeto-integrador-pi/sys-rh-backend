@@ -1,7 +1,3 @@
-Aqui está a organização do README com as ferramentas separadas em seções distintas:
-
----
-
 # 🚀 RH API — Documentação
 
 ---
