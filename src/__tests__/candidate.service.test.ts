@@ -13,8 +13,8 @@ const mockCandidate = {
   createdAt: new Date(),
   updatedAt: new Date(),
   deletedAt: null,
-  resume: null,           // ← adicionado
-  internalProfile: null,  // ← adicionado
+  resume: null,          
+  internalProfile: null,
 };
 
 describe('CandidateService', () => {
