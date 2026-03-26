@@ -7,7 +7,25 @@
     "start": "node dist/server.js",
     "dev": "nodemon --exec tsx server.ts",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage" 
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "testMatch": ["**/__tests__/**/*.test.ts"],
+    "moduleNameMapper": {
+      "^../config/client$": "<rootDir>/src/__mocks__/prisma.ts",
+      "^../../config/client$": "<rootDir>/src/__mocks__/prisma.ts"
+    },
+    "transform": {
+      "^.+\\.tsx?$": ["ts-jest", {
+        "tsconfig": {
+          "module": "CommonJS"
+        }
+      }]
+    }
   },
   "keywords": [
     "rh",
@@ -27,11 +45,14 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
     "@types/node": "^25.5.0",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
+    "jest": "^30.3.0",
     "nodemon": "^3.1.14",
     "prisma": "^7.5.0",
+    "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
