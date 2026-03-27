@@ -15,24 +15,8 @@ services:
     networks:
       - app-network-express
 
-  postgres-test:
-    image: postgres:15
-    container_name: sys-rh-backend-test-db
-    environment:
-      POSTGRES_DB: ${POSTGRES_TEST_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "${POSTGRES_TEST_PORT}:5432"
-    volumes:
-      - postgres_test_data:/var/lib/postgresql/data
-    restart: unless-stopped
-    networks:
-      - app-network-express
-
 volumes:
   postgres_data:
-  postgres_test_data:
 
 networks:
   app-network-express:
