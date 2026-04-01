@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import candidateController from '../controllers/candidate.controller';
 import resumeController from '../controllers/resume.controller';
+import { validate } from '../middlewares/validate.middleware';
+import { createCandidateSchema, updateCandidateSchema } from '../validators/candidate.validator';
 
 const router = Router();
 
@@ -213,5 +215,8 @@ router.post('/:candidateId/resume', resumeController.create.bind(resumeControlle
  *         description: Currículo não encontrado
  */
 router.put('/:candidateId/resume', resumeController.update.bind(resumeController));
+
+router.post('/',    validate(createCandidateSchema), candidateController.create.bind(candidateController));
+router.put('/:id',  validate(updateCandidateSchema), candidateController.update.bind(candidateController));
 
 export default router;

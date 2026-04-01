@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import authController from '../controllers/auth.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
-
+import { validate } from '../middlewares/validate.middleware';
+import { registerSchema, loginSchema } from '../validators/auth.validator';
 const router = Router();
 
 /**
@@ -196,5 +197,8 @@ router.post('/logout', authController.logout.bind(authController));
  *               $ref: '#/components/schemas/Error'
  */
 router.post('/logout-all', authMiddleware, authController.logoutAll.bind(authController));
+
+router.post('/register', validate(registerSchema), authController.register.bind(authController));
+router.post('/login',    validate(loginSchema),    authController.login.bind(authController));
 
 export default router;
