@@ -20,6 +20,8 @@ const router = Router();
  *   get:
  *     summary: Lista todos os candidatos
  *     tags: [Candidates]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de candidatos
@@ -38,6 +40,8 @@ router.get('/', candidateController.findAll.bind(candidateController));
  *   get:
  *     summary: Busca candidato por ID
  *     tags: [Candidates]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -65,7 +69,7 @@ router.get('/:id', candidateController.findById.bind(candidateController));
  * @swagger
  * /api/candidates:
  *   post:
- *     summary: Cadastrar novo candidato
+ *     summary: Cadastrar novo candidato (público)
  *     tags: [Candidates]
  *     requestBody:
  *       required: true
@@ -80,14 +84,14 @@ router.get('/:id', candidateController.findById.bind(candidateController));
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Candidate'
- *       400:
+ *       409:
  *         description: Email já cadastrado
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', candidateController.create.bind(candidateController));
+router.post('/', validate(createCandidateSchema), candidateController.create.bind(candidateController));
 
 /**
  * @swagger
@@ -95,6 +99,8 @@ router.post('/', candidateController.create.bind(candidateController));
  *   put:
  *     summary: Atualizar candidato
  *     tags: [Candidates]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -116,10 +122,12 @@ router.post('/', candidateController.create.bind(candidateController));
  *     responses:
  *       200:
  *         description: Candidato atualizado
- *       400:
- *         description: Erro ao atualizar
+ *       403:
+ *         description: Acesso negado
+ *       404:
+ *         description: Candidato não encontrado
  */
-router.put('/:id', candidateController.update.bind(candidateController));
+router.put('/:id', requireRole('ADMIN', 'RECRUITER'), validate(updateCandidateSchema), candidateController.update.bind(candidateController));
 
 /**
  * @swagger
@@ -127,6 +135,8 @@ router.put('/:id', candidateController.update.bind(candidateController));
  *   delete:
  *     summary: Remover candidato (soft delete)
  *     tags: [Candidates]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -137,10 +147,12 @@ router.put('/:id', candidateController.update.bind(candidateController));
  *     responses:
  *       204:
  *         description: Candidato removido
- *       400:
- *         description: Erro ao remover
+ *       403:
+ *         description: Acesso negado
+ *       404:
+ *         description: Candidato não encontrado
  */
-router.delete('/:id', candidateController.delete.bind(candidateController));
+router.delete('/:id', requireRole('ADMIN'), candidateController.delete.bind(candidateController));
 
 /**
  * @swagger
@@ -148,6 +160,8 @@ router.delete('/:id', candidateController.delete.bind(candidateController));
  *   get:
  *     summary: Busca currículo do candidato
  *     tags: [Candidates]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: candidateId
@@ -167,7 +181,7 @@ router.get('/:candidateId/resume', resumeController.findByCandidateId.bind(resum
  * @swagger
  * /api/candidates/{candidateId}/resume:
  *   post:
- *     summary: Criar currículo do candidato
+ *     summary: Criar currículo do candidato (público)
  *     tags: [Candidates]
  *     parameters:
  *       - in: path
@@ -185,7 +199,7 @@ router.get('/:candidateId/resume', resumeController.findByCandidateId.bind(resum
  *     responses:
  *       201:
  *         description: Currículo criado
- *       400:
+ *       409:
  *         description: Candidato já possui currículo
  */
 router.post('/:candidateId/resume', resumeController.create.bind(resumeController));
@@ -196,6 +210,8 @@ router.post('/:candidateId/resume', resumeController.create.bind(resumeControlle
  *   put:
  *     summary: Atualizar currículo do candidato
  *     tags: [Candidates]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: candidateId
@@ -212,25 +228,11 @@ router.post('/:candidateId/resume', resumeController.create.bind(resumeControlle
  *     responses:
  *       200:
  *         description: Currículo atualizado
+ *       403:
+ *         description: Acesso negado
  *       404:
  *         description: Currículo não encontrado
  */
-router.put('/:candidateId/resume', resumeController.update.bind(resumeController));
-
-router.post('/',    validate(createCandidateSchema), candidateController.create.bind(candidateController));
-router.put('/:id',  validate(updateCandidateSchema), candidateController.update.bind(candidateController));
-
-// rotas internas — todos autenticados podem ver
-router.get('/',    candidateController.findAll.bind(candidateController));
-router.get('/:id', candidateController.findById.bind(candidateController));
-
-// apenas ADMIN e RECRUITER podem editar
-router.put('/:id',    requireRole('ADMIN', 'RECRUITER'), validate(updateCandidateSchema), candidateController.update.bind(candidateController));
-router.delete('/:id', requireRole('ADMIN'), candidateController.delete.bind(candidateController));
-
-// resume — interno
-router.get('/:candidateId/resume',  resumeController.findByCandidateId.bind(resumeController));
-router.post('/:candidateId/resume', requireRole('ADMIN', 'RECRUITER'), resumeController.create.bind(resumeController));
-router.put('/:candidateId/resume',  requireRole('ADMIN', 'RECRUITER'), resumeController.update.bind(resumeController));
+router.put('/:candidateId/resume', requireRole('ADMIN', 'RECRUITER'), resumeController.update.bind(resumeController));
 
 export default router;

@@ -35,7 +35,12 @@ export function sanitizeMiddleware(req: Request, res: Response, next: NextFuncti
   }
 
   if (req.query && typeof req.query === 'object') {
-    req.query = sanitizeBody(req.query as Record<string, any>) as any;
+    for (const key in req.query) {
+      const value = req.query[key];
+      if (typeof value === 'string') {
+        req.query[key] = sanitizeText(value);
+      }
+    }
   }
 
   next();

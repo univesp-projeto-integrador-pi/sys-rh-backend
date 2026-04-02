@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import jobPositionController from '../controllers/jobPosition.controller';
 import { requireRole } from '../middlewares/role.middleware';
+import { validate } from '../middlewares/validate.middleware';
+import { createJobPositionSchema, updateJobPositionSchema } from '../validators/jobPosition.validator';
 
 const router = Router();
 
@@ -35,6 +37,8 @@ router.get('/open', jobPositionController.findAllOpen.bind(jobPositionController
  *   get:
  *     summary: Lista todas as vagas
  *     tags: [Jobs]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de vagas
@@ -51,7 +55,7 @@ router.get('/', jobPositionController.findAll.bind(jobPositionController));
  * @swagger
  * /api/jobs/{id}:
  *   get:
- *     summary: Busca vaga por ID
+ *     summary: Busca vaga por ID (público)
  *     tags: [Jobs]
  *     parameters:
  *       - in: path
@@ -82,6 +86,8 @@ router.get('/:id', jobPositionController.findById.bind(jobPositionController));
  *   post:
  *     summary: Criar nova vaga
  *     tags: [Jobs]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -95,14 +101,20 @@ router.get('/:id', jobPositionController.findById.bind(jobPositionController));
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/JobPosition'
- *       400:
+ *       403:
+ *         description: Acesso negado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
  *         description: Departamento não encontrado
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', jobPositionController.create.bind(jobPositionController));
+router.post('/', requireRole('ADMIN', 'RECRUITER'), validate(createJobPositionSchema), jobPositionController.create.bind(jobPositionController));
 
 /**
  * @swagger
@@ -110,6 +122,8 @@ router.post('/', jobPositionController.create.bind(jobPositionController));
  *   put:
  *     summary: Atualizar vaga
  *     tags: [Jobs]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -134,10 +148,12 @@ router.post('/', jobPositionController.create.bind(jobPositionController));
  *     responses:
  *       200:
  *         description: Vaga atualizada
+ *       403:
+ *         description: Acesso negado
  *       404:
  *         description: Vaga não encontrada
  */
-router.put('/:id', jobPositionController.update.bind(jobPositionController));
+router.put('/:id', requireRole('ADMIN', 'RECRUITER'), validate(updateJobPositionSchema), jobPositionController.update.bind(jobPositionController));
 
 /**
  * @swagger
@@ -145,6 +161,8 @@ router.put('/:id', jobPositionController.update.bind(jobPositionController));
  *   delete:
  *     summary: Remover vaga
  *     tags: [Jobs]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -155,23 +173,11 @@ router.put('/:id', jobPositionController.update.bind(jobPositionController));
  *     responses:
  *       204:
  *         description: Vaga removida
- *       400:
- *         description: Erro ao remover
+ *       403:
+ *         description: Acesso negado
+ *       404:
+ *         description: Vaga não encontrada
  */
-router.delete('/:id', jobPositionController.delete.bind(jobPositionController));
-
-// rotas públicas — sem auth
-router.get('/open', jobPositionController.findAllOpen.bind(jobPositionController));
-router.get('/:id',  jobPositionController.findById.bind(jobPositionController));
-
-// todos autenticados podem ver
-router.get('/', jobPositionController.findAll.bind(jobPositionController));
-
-// ADMIN e RECRUITER podem criar e editar
-router.post('/',      requireRole('ADMIN', 'RECRUITER'), jobPositionController.create.bind(jobPositionController));
-router.put('/:id',    requireRole('ADMIN', 'RECRUITER'), jobPositionController.update.bind(jobPositionController));
-
-// apenas ADMIN pode deletar
 router.delete('/:id', requireRole('ADMIN'), jobPositionController.delete.bind(jobPositionController));
 
 export default router;
