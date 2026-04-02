@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import jobApplicationController from '../controllers/jobApplication.controller';
 import internalNoteController from '../controllers/internalNote.controller';
+import { requireRole } from '../middlewares/role.middleware';
 
 const router = Router();
 
@@ -241,5 +242,21 @@ router.post('/:applicationId/notes', internalNoteController.create.bind(internal
  *         description: Erro ao remover
  */
 router.delete('/:applicationId/notes/:id', internalNoteController.delete.bind(internalNoteController));
+// todos autenticados podem ver
+router.get('/',    jobApplicationController.findAll.bind(jobApplicationController));
+router.get('/:id', jobApplicationController.findById.bind(jobApplicationController));
+router.get('/candidate/:candidateId', jobApplicationController.findByCandidateId.bind(jobApplicationController));
+
+// ADMIN e RECRUITER podem criar e avançar stages
+router.post('/',           requireRole('ADMIN', 'RECRUITER'), jobApplicationController.create.bind(jobApplicationController));
+router.patch('/:id/stage', requireRole('ADMIN', 'RECRUITER'), jobApplicationController.updateStage.bind(jobApplicationController));
+
+// apenas ADMIN pode deletar candidatura
+router.delete('/:id', requireRole('ADMIN'), jobApplicationController.delete.bind(jobApplicationController));
+
+// notas — VIEWER não acessa
+router.get('/:applicationId/notes',         requireRole('ADMIN', 'RECRUITER'), internalNoteController.findByApplicationId.bind(internalNoteController));
+router.post('/:applicationId/notes',        requireRole('ADMIN', 'RECRUITER'), internalNoteController.create.bind(internalNoteController));
+router.delete('/:applicationId/notes/:id',  requireRole('ADMIN', 'RECRUITER'), internalNoteController.delete.bind(internalNoteController));
 
 export default router;

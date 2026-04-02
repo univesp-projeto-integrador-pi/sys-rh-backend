@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import departmentController from '../controllers/department.controller';
-
+import { requireRole } from '../middlewares/role.middleware';
 const router = Router();
 
 /**
@@ -135,5 +135,14 @@ router.put('/:id', departmentController.update.bind(departmentController));
  *         description: Erro ao remover
  */
 router.delete('/:id', departmentController.delete.bind(departmentController));
+
+// todos podem ver departamentos
+router.get('/',    departmentController.findAll.bind(departmentController));
+router.get('/:id', departmentController.findById.bind(departmentController));
+
+// apenas ADMIN gerencia departamentos
+router.post('/',      requireRole('ADMIN'), departmentController.create.bind(departmentController));
+router.put('/:id',    requireRole('ADMIN'), departmentController.update.bind(departmentController));
+router.delete('/:id', requireRole('ADMIN'), departmentController.delete.bind(departmentController));
 
 export default router;

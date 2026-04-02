@@ -13,6 +13,12 @@ import departmentRoutes from './src/routes/department.routes';
 import candidateRoutes from './src/routes/candidate.routes';
 import jobPositionRoutes from './src/routes/jobPosition.routes';
 import jobApplicationRoutes from './src/routes/jobApplication.routes';
+import csrfRoutes from './src/routes/csrf.routes';
+import { sanitizeMiddleware } from './src/middlewares/sanitize.middleware';
+import candidateController from './src/controllers/candidate.controller';
+import resumeController from './src/controllers/resume.controller';
+import { validate } from './src/middlewares/validate.middleware';
+import { createCandidateSchema } from './src/validators/candidate.validator';
 
 const app = express();
 
@@ -24,20 +30,22 @@ app.use(globalLimiter);
 // Parsing
 app.use(express.json());
 app.use(cookieParser());
+app.use(sanitizeMiddleware);
+app.use('/api/csrf-token', csrfRoutes);
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Rotas públicas
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/jobs', jobPositionRoutes);
+app.post('/api/candidates', validate(createCandidateSchema), candidateController.create.bind(candidateController)); // ← pública
+app.post('/api/candidates/:candidateId/resume', resumeController.create.bind(resumeController)); // ← pública
 
 // Rotas internas
 app.use('/api/users',            authMiddleware, userRoutes);
 app.use('/api/departments',      authMiddleware, departmentRoutes);
-app.use('/api/candidates',       authMiddleware, candidateRoutes);
+app.use('/api/candidates',       authMiddleware, candidateRoutes); // ← GET, PUT, DELETE internos
 app.use('/api/job-applications', authMiddleware, jobApplicationRoutes);
-
 // Error handler — sempre por último
 app.use(errorHandler);
 

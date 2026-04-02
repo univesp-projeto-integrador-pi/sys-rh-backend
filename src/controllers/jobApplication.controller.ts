@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import jobApplicationService from '../services/jobApplication.service';
 
 class JobApplicationController {
@@ -40,16 +40,17 @@ class JobApplicationController {
     }
   }
 
-  async updateStage(req: Request, res: Response) {
+  async updateStage(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params as { id: string };
-      const application = await jobApplicationService.updateStage(id, req.body);
+      const requestingUserId = req.userId!;
+      const application = await jobApplicationService.updateStage(id, req.body, requestingUserId);
       res.json(application);
-    } catch (error: any) {
-      res.status(400).json({ message: error.message });
+    } catch (error) {
+      next(error);
     }
   }
-
+  
   async delete(req: Request, res: Response) {
     try {
       const { id } = req.params as { id: string };

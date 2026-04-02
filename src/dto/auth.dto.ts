@@ -2,6 +2,7 @@ export interface RegisterDTO {
   name: string;
   email: string;
   password: string;
+  role?: 'ADMIN' | 'RECRUITER' | 'VIEWER';
 }
 
 export interface LoginDTO {
@@ -12,6 +13,7 @@ export interface LoginDTO {
 export interface AccessTokenPayload {
   userId: string;
   email: string;
+  role: 'ADMIN' | 'RECRUITER' | 'VIEWER'; // ← adicionado
 }
 
 export interface AuthResponseDTO {
@@ -20,5 +22,6 @@ export interface AuthResponseDTO {
     id: string;
     name: string;
     email: string;
+    role: string;
   };
 }

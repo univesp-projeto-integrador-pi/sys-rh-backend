@@ -3,6 +3,7 @@ import candidateController from '../controllers/candidate.controller';
 import resumeController from '../controllers/resume.controller';
 import { validate } from '../middlewares/validate.middleware';
 import { createCandidateSchema, updateCandidateSchema } from '../validators/candidate.validator';
+import { requireRole } from '../middlewares/role.middleware';
 
 const router = Router();
 
@@ -218,5 +219,18 @@ router.put('/:candidateId/resume', resumeController.update.bind(resumeController
 
 router.post('/',    validate(createCandidateSchema), candidateController.create.bind(candidateController));
 router.put('/:id',  validate(updateCandidateSchema), candidateController.update.bind(candidateController));
+
+// rotas internas — todos autenticados podem ver
+router.get('/',    candidateController.findAll.bind(candidateController));
+router.get('/:id', candidateController.findById.bind(candidateController));
+
+// apenas ADMIN e RECRUITER podem editar
+router.put('/:id',    requireRole('ADMIN', 'RECRUITER'), validate(updateCandidateSchema), candidateController.update.bind(candidateController));
+router.delete('/:id', requireRole('ADMIN'), candidateController.delete.bind(candidateController));
+
+// resume — interno
+router.get('/:candidateId/resume',  resumeController.findByCandidateId.bind(resumeController));
+router.post('/:candidateId/resume', requireRole('ADMIN', 'RECRUITER'), resumeController.create.bind(resumeController));
+router.put('/:candidateId/resume',  requireRole('ADMIN', 'RECRUITER'), resumeController.update.bind(resumeController));
 
 export default router;

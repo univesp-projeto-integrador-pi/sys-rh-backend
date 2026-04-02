@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import userController from '../controllers/user.controller';
+import { requireRole } from '../middlewares/role.middleware';
 
 const router = Router();
 
@@ -135,5 +136,11 @@ router.put('/:id', userController.update.bind(userController));
  *         description: Erro ao remover
  */
 router.delete('/:id', userController.delete.bind(userController));
+
+router.get('/',       requireRole('ADMIN'), userController.findAll.bind(userController));
+router.get('/:id',    requireRole('ADMIN'), userController.findById.bind(userController));
+router.post('/',      requireRole('ADMIN'), userController.create.bind(userController));
+router.put('/:id',    requireRole('ADMIN'), userController.update.bind(userController));
+router.delete('/:id', requireRole('ADMIN'), userController.delete.bind(userController));
 
 export default router;

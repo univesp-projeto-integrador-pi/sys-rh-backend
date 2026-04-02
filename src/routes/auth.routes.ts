@@ -3,6 +3,8 @@ import authController from '../controllers/auth.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import { registerSchema, loginSchema } from '../validators/auth.validator';
+import { doubleCsrfProtection } from '../config/csrf';
+
 const router = Router();
 
 /**
@@ -11,73 +13,6 @@ const router = Router();
  *   name: Auth
  *   description: Autenticação
  */
-
-/**
- * @swagger
- * /api/auth/register:
- *   post:
- *     summary: Registrar novo usuário
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [name, email, password]
- *             properties:
- *               name:
- *                 type: string
- *               email:
- *                 type: string
- *                 format: email
- *               password:
- *                 type: string
- *                 format: password
- *     responses:
- *       201:
- *         description: Usuário registrado
- *       400:
- *         description: Email já cadastrado
- */
-router.post('/register', authController.register.bind(authController));
-
-/**
- * @swagger
- * /api/auth/login:
- *   post:
- *     summary: Login
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [email, password]
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               password:
- *                 type: string
- *                 format: password
- *     responses:
- *       200:
- *         description: Login realizado — refresh token enviado no cookie
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 accessToken:
- *                   type: string
- *                 user:
- *                   $ref: '#/components/schemas/User'
- *       401:
- *         description: Credenciais inválidas
- */
-router.post('/login', authController.login.bind(authController));
 
 /**
  * @swagger
@@ -105,7 +40,7 @@ router.post('/login', authController.login.bind(authController));
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/register', authController.register.bind(authController));
+router.post('/register', validate(registerSchema), authController.register.bind(authController));
 
 /**
  * @swagger
@@ -121,7 +56,7 @@ router.post('/register', authController.register.bind(authController));
  *             $ref: '#/components/schemas/LoginDTO'
  *     responses:
  *       200:
- *         description: Login realizado
+ *         description: Login realizado — refresh token enviado no cookie HttpOnly
  *         content:
  *           application/json:
  *             schema:
@@ -133,7 +68,7 @@ router.post('/register', authController.register.bind(authController));
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/login', authController.login.bind(authController));
+router.post('/login', validate(loginSchema), authController.login.bind(authController));
 
 /**
  * @swagger
@@ -141,6 +76,13 @@ router.post('/login', authController.login.bind(authController));
  *   post:
  *     summary: Gerar novo access token usando refresh token do cookie
  *     tags: [Auth]
+ *     parameters:
+ *       - in: header
+ *         name: x-csrf-token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token CSRF obtido em GET /api/csrf-token
  *     responses:
  *       200:
  *         description: Novo access token gerado
@@ -158,7 +100,7 @@ router.post('/login', authController.login.bind(authController));
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/refresh', authController.refresh.bind(authController));
+router.post('/refresh', doubleCsrfProtection, authController.refresh.bind(authController));
 
 /**
  * @swagger
@@ -166,17 +108,24 @@ router.post('/refresh', authController.refresh.bind(authController));
  *   post:
  *     summary: Logout — invalida o refresh token atual
  *     tags: [Auth]
+ *     parameters:
+ *       - in: header
+ *         name: x-csrf-token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token CSRF obtido em GET /api/csrf-token
  *     responses:
  *       204:
  *         description: Logout realizado
- *       400:
- *         description: Erro ao realizar logout
+ *       401:
+ *         description: Token CSRF inválido
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/logout', authController.logout.bind(authController));
+router.post('/logout', doubleCsrfProtection, authController.logout.bind(authController));
 
 /**
  * @swagger
@@ -186,19 +135,23 @@ router.post('/logout', authController.logout.bind(authController));
  *     tags: [Auth]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: header
+ *         name: x-csrf-token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Token CSRF obtido em GET /api/csrf-token
  *     responses:
  *       204:
  *         description: Logout em todos os dispositivos realizado
  *       401:
- *         description: Token inválido
+ *         description: Token inválido ou CSRF inválido
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/logout-all', authMiddleware, authController.logoutAll.bind(authController));
-
-router.post('/register', validate(registerSchema), authController.register.bind(authController));
-router.post('/login',    validate(loginSchema),    authController.login.bind(authController));
+router.post('/logout-all', doubleCsrfProtection, authMiddleware, authController.logoutAll.bind(authController));
 
 export default router;

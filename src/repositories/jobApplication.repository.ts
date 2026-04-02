@@ -1,14 +1,14 @@
-import prisma from "../config/client";
-import { CreateJobApplicationDTO, UpdateJobApplicationDTO } from "../dto/jobApplication.dto";
+import prisma from '../config/client';
+import { CreateJobApplicationDTO, UpdateJobApplicationDTO } from '../dto/jobApplication.dto';
 
 class JobApplicationRepository {
   findAll() {
     return prisma.jobApplication.findMany({
-      where: { deletedAt: null },
-      include: {
-        candidate: true,
-        position: true
-      }
+      where: {
+        deletedAt: null,
+        candidate: { deletedAt: null } // ← filtra candidatos deletados
+      },
+      include: { candidate: true, position: true }
     });
   }
 
@@ -25,7 +25,11 @@ class JobApplicationRepository {
 
   findByCandidateId(candidateId: string) {
     return prisma.jobApplication.findMany({
-      where: { candidateId, deletedAt: null },
+      where: {
+        candidateId,
+        deletedAt: null,
+        candidate: { deletedAt: null } // ← filtra candidatos deletados
+      },
       include: { position: true }
     });
   }
@@ -38,10 +42,7 @@ class JobApplicationRepository {
   }
 
   update(id: string, data: UpdateJobApplicationDTO) {
-    return prisma.jobApplication.update({
-      where: { id },
-      data,
-    });
+    return prisma.jobApplication.update({ where: { id }, data });
   }
 
   softDelete(id: string) {

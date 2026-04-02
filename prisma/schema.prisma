@@ -12,11 +12,12 @@ model User {
   id           String    @id @default(uuid())
   name         String
   email        String    @unique
-  password     String   
+  password     String
+  role         Role      @default(RECRUITER) // padrão é RECRUITER
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  notes        InternalNote[]
+  notes         InternalNote[]
   refreshTokens RefreshToken[]
 
   @@map("users")
@@ -191,4 +192,10 @@ enum ApplicationStage {
   OFFER
   HIRED
   REJECTED
+}
+
+enum Role {
+  ADMIN
+  RECRUITER
+  VIEWER
 }

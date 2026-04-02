@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import jobPositionController from '../controllers/jobPosition.controller';
+import { requireRole } from '../middlewares/role.middleware';
 
 const router = Router();
 
@@ -158,5 +159,19 @@ router.put('/:id', jobPositionController.update.bind(jobPositionController));
  *         description: Erro ao remover
  */
 router.delete('/:id', jobPositionController.delete.bind(jobPositionController));
+
+// rotas públicas — sem auth
+router.get('/open', jobPositionController.findAllOpen.bind(jobPositionController));
+router.get('/:id',  jobPositionController.findById.bind(jobPositionController));
+
+// todos autenticados podem ver
+router.get('/', jobPositionController.findAll.bind(jobPositionController));
+
+// ADMIN e RECRUITER podem criar e editar
+router.post('/',      requireRole('ADMIN', 'RECRUITER'), jobPositionController.create.bind(jobPositionController));
+router.put('/:id',    requireRole('ADMIN', 'RECRUITER'), jobPositionController.update.bind(jobPositionController));
+
+// apenas ADMIN pode deletar
+router.delete('/:id', requireRole('ADMIN'), jobPositionController.delete.bind(jobPositionController));
 
 export default router;
