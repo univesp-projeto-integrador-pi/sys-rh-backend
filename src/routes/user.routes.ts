@@ -1,4 +1,3 @@
-// src/routes/user.routes.ts
 import { Router } from 'express';
 import userController from '../controllers/user.controller';
 import { requireRole } from '../middlewares/role.middleware';

@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node dist/server.js",
     "dev": "nodemon --exec tsx server.ts",
+    "dev:test": "cross-env NODE_ENV=test nodemon --exec tsx server.ts",
+    "dev:stress": "cross-env NODE_ENV=production nodemon --exec tsx server.ts",
     "build": "tsc",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -69,6 +71,7 @@
     "@types/sanitize-html": "^2.16.1",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
+    "cross-env": "^10.1.0",
     "jest": "^30.3.0",
     "nodemon": "^3.1.14",
     "prisma": "^7.5.0",

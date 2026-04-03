@@ -4,6 +4,7 @@ import userRepository from '../repositories/user.repository';
 import refreshTokenRepository from '../repositories/refreshToken.repository';
 import { AccessTokenPayload, LoginDTO, RegisterDTO } from '../dto/auth.dto';
 import { AppError } from '../middlewares/errorHandler.middleware';
+import { randomUUID } from 'crypto';
 
 class AuthService {
   private generateAccessToken(payload: AccessTokenPayload): string {
@@ -13,9 +14,11 @@ class AuthService {
   }
 
   private generateRefreshToken(payload: AccessTokenPayload): string {
-    return jwt.sign(payload, process.env.JWT_REFRESH_SECRET!, {
-      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as jwt.SignOptions['expiresIn']
-    });
+    return jwt.sign(
+      { ...payload, jti: randomUUID() },
+      process.env.JWT_REFRESH_SECRET!,
+      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as jwt.SignOptions['expiresIn'] }
+    );
   }
 
   async register(data: RegisterDTO) {

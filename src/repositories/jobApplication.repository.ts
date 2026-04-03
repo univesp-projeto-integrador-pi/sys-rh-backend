@@ -6,13 +6,14 @@ class JobApplicationRepository {
     return prisma.jobApplication.findMany({
       where: {
         deletedAt: null,
-        candidate: { deletedAt: null } // ← filtra candidatos deletados
+        candidate: { deletedAt: null }
       },
       include: { candidate: true, position: true }
     });
   }
 
   findById(id: string) {
+    if (!id) return null;
     return prisma.jobApplication.findUnique({
       where: { id },
       include: {
@@ -28,7 +29,7 @@ class JobApplicationRepository {
       where: {
         candidateId,
         deletedAt: null,
-        candidate: { deletedAt: null } // ← filtra candidatos deletados
+        candidate: { deletedAt: null }
       },
       include: { position: true }
     });
