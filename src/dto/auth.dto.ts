@@ -13,7 +13,7 @@ export interface LoginDTO {
 export interface AccessTokenPayload {
   userId: string;
   email: string;
-  role: 'ADMIN' | 'RECRUITER' | 'VIEWER'; // ← adicionado
+  role: 'ADMIN' | 'RECRUITER' | 'VIEWER';
 }
 
 export interface AuthResponseDTO {

@@ -15,6 +15,8 @@ const mockUser = {
   id: 'user-1',
   name: 'Recrutador',
   email: 'recrutador@empresa.com',
+  password: 'hashed-password',
+  role: 'RECRUITER' as any,   
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -27,6 +29,8 @@ const mockCandidate = {
   createdAt: new Date(),
   updatedAt: new Date(),
   deletedAt: null,
+  resume: null,         
+  internalProfile: null,
 };
 
 const mockPosition = {
@@ -135,12 +139,47 @@ describe('InternalNoteService', () => {
   });
 
   describe('delete', () => {
-    it('deve deletar nota com sucesso', async () => {
+    it('deve deletar nota com sucesso quando autor é o mesmo', async () => {
+      mockInternalNoteRepository.findById.mockResolvedValue(mockNote);
       mockInternalNoteRepository.delete.mockResolvedValue(mockNote);
 
-      await internalNoteService.delete('note-1');
+      await internalNoteService.delete('note-1', 'app-1', 'user-1');
 
       expect(mockInternalNoteRepository.delete).toHaveBeenCalledWith('note-1');
+    });
+
+    it('deve lançar erro quando nota não pertence à candidatura', async () => {
+      mockInternalNoteRepository.findById.mockResolvedValue(mockNote);
+
+      await expect(internalNoteService.delete('note-1', 'app-errada', 'user-1'))
+        .rejects.toMatchObject({
+          message: 'Nota não pertence a esta candidatura',
+          statusCode: 404,
+        });
+
+      expect(mockInternalNoteRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('deve lançar erro quando outro usuário tenta deletar a nota', async () => {
+      mockInternalNoteRepository.findById.mockResolvedValue(mockNote);
+
+      await expect(internalNoteService.delete('note-1', 'app-1', 'outro-usuario'))
+        .rejects.toMatchObject({
+          message: 'Apenas o autor pode deletar esta nota',
+          statusCode: 403,
+        });
+
+      expect(mockInternalNoteRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('deve lançar erro quando nota não encontrada', async () => {
+      mockInternalNoteRepository.findById.mockResolvedValue(null);
+
+      await expect(internalNoteService.delete('nota-inexistente', 'app-1', 'user-1'))
+        .rejects.toMatchObject({
+          message: 'Nota não encontrada',
+          statusCode: 404,
+        });
     });
   });
 });

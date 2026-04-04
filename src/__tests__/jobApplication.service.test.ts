@@ -2,14 +2,17 @@ import jobApplicationService from '../services/jobApplication.service';
 import jobApplicationRepository from '../repositories/jobApplication.repository';
 import candidateRepository from '../repositories/candidate.repository';
 import jobPositionRepository from '../repositories/jobPosition.repository';
+import internalNoteService from '../services/internalNote.service';
 
 jest.mock('../repositories/jobApplication.repository');
 jest.mock('../repositories/candidate.repository');
 jest.mock('../repositories/jobPosition.repository');
+jest.mock('../services/internalNote.service');
 
 const mockJobApplicationRepository = jobApplicationRepository as jest.Mocked<typeof jobApplicationRepository>;
 const mockCandidateRepository = candidateRepository as jest.Mocked<typeof candidateRepository>;
 const mockJobPositionRepository = jobPositionRepository as jest.Mocked<typeof jobPositionRepository>;
+const mockInternalNoteService = internalNoteService as jest.Mocked<typeof internalNoteService>;
 
 const mockDepartment = { id: 'dept-1', name: 'Tecnologia' };
 
@@ -21,7 +24,7 @@ const mockCandidate = {
   createdAt: new Date(),
   updatedAt: new Date(),
   deletedAt: null,
-  resume: null,        
+  resume: null,
   internalProfile: null,
 };
 
@@ -112,26 +115,36 @@ describe('JobApplicationService', () => {
   });
 
   describe('updateStage', () => {
-    it('deve atualizar etapa com sucesso', async () => {
+    it('deve atualizar etapa com sucesso e criar nota de auditoria', async () => {
       mockJobApplicationRepository.findById.mockResolvedValue(mockApplication);
       mockJobApplicationRepository.update.mockResolvedValue({
         ...mockApplication,
         currentStage: 'SCREENING' as const,
       });
+      mockInternalNoteService.createAuditNote.mockResolvedValue({} as any);
 
-      const result = await jobApplicationService.updateStage('uuid-1', {
-        currentStage: 'SCREENING',
-      });
+      const result = await jobApplicationService.updateStage(
+        'uuid-1',
+        { currentStage: 'SCREENING' },
+        'user-1'
+      );
 
       expect(result.currentStage).toBe('SCREENING');
+      expect(mockInternalNoteService.createAuditNote).toHaveBeenCalledWith(
+        'uuid-1',
+        'user-1',
+        'Etapa alterada para SCREENING'
+      );
     });
 
     it('deve lançar erro quando candidatura não encontrada', async () => {
       mockJobApplicationRepository.findById.mockResolvedValue(null);
 
-      await expect(jobApplicationService.updateStage('inexistente', {
-        currentStage: 'SCREENING',
-      })).rejects.toThrow('Candidatura não encontrada');
+      await expect(jobApplicationService.updateStage(
+        'inexistente',
+        { currentStage: 'SCREENING' },
+        'user-1'
+      )).rejects.toThrow('Candidatura não encontrada');
     });
   });
 

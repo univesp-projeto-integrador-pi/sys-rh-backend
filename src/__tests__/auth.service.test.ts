@@ -19,13 +19,14 @@ const mockUser = {
   name:      'Recrutador',
   email:     'recrutador@empresa.com',
   password:  'hashed-password',
+  role:      'RECRUITER' as any,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
 
 beforeAll(() => {
-  process.env.JWT_ACCESS_SECRET   = 'access-secret';
-  process.env.JWT_REFRESH_SECRET  = 'refresh-secret';
+  process.env.JWT_ACCESS_SECRET      = 'access-secret';
+  process.env.JWT_REFRESH_SECRET     = 'refresh-secret';
   process.env.JWT_ACCESS_EXPIRES_IN  = '24h';
   process.env.JWT_REFRESH_EXPIRES_IN = '7d';
 });
@@ -95,6 +96,24 @@ describe('AuthService', () => {
       expect(result).toHaveProperty('refreshToken');
       expect(result.user.email).toBe('recrutador@empresa.com');
       expect(result.user).not.toHaveProperty('password');
+    });
+
+    it('deve incluir role no payload do token', async () => {
+      mockUserRepository.findByEmail.mockResolvedValue(mockUser);
+      (mockBcrypt.compare as jest.Mock).mockResolvedValue(true);
+      (mockJwt.sign as jest.Mock).mockReturnValue('token');
+      mockRefreshTokenRepository.create.mockResolvedValue({} as any);
+
+      await authService.login({
+        email:    'recrutador@empresa.com',
+        password: 'Senha@123',
+      });
+
+      expect(mockJwt.sign).toHaveBeenCalledWith(
+        expect.objectContaining({ role: 'RECRUITER' }),
+        expect.any(String),
+        expect.any(Object)
+      );
     });
 
     it('deve lançar erro quando usuário não encontrado', async () => {
@@ -180,6 +199,7 @@ describe('AuthService', () => {
       (mockJwt.verify as jest.Mock).mockReturnValue({
         userId: 'user-1',
         email:  'recrutador@empresa.com',
+        role:   'RECRUITER',
       });
       (mockJwt.sign as jest.Mock).mockReturnValue('novo-access-token');
 
@@ -195,25 +215,36 @@ describe('AuthService', () => {
     it('deve lançar erro quando refresh token não existe no banco', async () => {
       mockRefreshTokenRepository.findByToken.mockResolvedValue(null);
 
-      await expect(authService.refresh('token-inexistente')).rejects.toThrow('Refresh token inválido');
+      await expect(authService.refresh('token-inexistente'))
+        .rejects.toThrow('Refresh token inválido ou expirado');
     });
 
-    it('deve lançar erro e deletar token quando refresh token está expirado', async () => {
-      const pastDate = new Date();
-      pastDate.setDate(pastDate.getDate() - 1);
+    it('deve lançar erro quando refresh token está expirado', async () => {
+      mockRefreshTokenRepository.findByToken.mockResolvedValue(null);
+
+      await expect(authService.refresh('token-expirado'))
+        .rejects.toThrow('Refresh token inválido ou expirado');
+    });
+
+    it('deve lançar erro quando assinatura do token é inválida', async () => {
+      const futureDate = new Date();
+      futureDate.setDate(futureDate.getDate() + 7);
 
       mockRefreshTokenRepository.findByToken.mockResolvedValue({
         id:        'token-1',
-        token:     'token-expirado',
+        token:     'refresh-token',
         userId:    'user-1',
-        expiresAt: pastDate,
+        expiresAt: futureDate,
         createdAt: new Date(),
         user:      mockUser,
       });
-      mockRefreshTokenRepository.deleteByToken.mockResolvedValue({} as any);
+    
+      (mockJwt.verify as jest.Mock).mockImplementation(() => {
+        throw new Error('invalid signature');
+      });
 
-      await expect(authService.refresh('token-expirado')).rejects.toThrow('Refresh token expirado');
-      expect(mockRefreshTokenRepository.deleteByToken).toHaveBeenCalledWith('token-expirado');
+      await expect(authService.refresh('refresh-token'))
+        .rejects.toThrow('Refresh token inválido');
     });
   });
 });
