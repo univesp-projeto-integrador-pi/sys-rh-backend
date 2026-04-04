@@ -8,8 +8,11 @@ class RefreshTokenRepository {
   }
 
   findByToken(token: string) {
-    return prisma.refreshToken.findUnique({
-      where: { token },
+    return prisma.refreshToken.findFirst({
+      where: {
+        token,
+        expiresAt: { gt: new Date() }
+      },
       include: { user: true }
     });
   }
@@ -20,6 +23,12 @@ class RefreshTokenRepository {
 
   deleteAllByUserId(userId: string) {
     return prisma.refreshToken.deleteMany({ where: { userId } });
+  }
+
+  deleteExpired() {
+    return prisma.refreshToken.deleteMany({
+      where: { expiresAt: { lt: new Date() } }
+    });
   }
 }
 

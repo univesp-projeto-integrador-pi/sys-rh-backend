@@ -9,6 +9,8 @@ const mockUser = {
   id: 'uuid-1',
   name: 'João Silva',
   email: 'joao@email.com',
+  password: 'hashed-password',
+  role: 'RECRUITER' as any,
   createdAt: new Date(),
   updatedAt: new Date(),
 };
@@ -45,21 +47,33 @@ describe('UserService', () => {
   });
 
   describe('create', () => {
-    it('deve criar usuário com sucesso', async () => {
+    it('deve criar usuário com sucesso e hashear senha', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(null);
       mockUserRepository.create.mockResolvedValue(mockUser);
 
-      const result = await userService.create({ name: 'João Silva', email: 'joao@email.com' });
+      const result = await userService.create({
+        name: 'João Silva',
+        email: 'joao@email.com',
+        password: 'Senha@123',
+      });
 
       expect(result).toEqual(mockUser);
-      expect(mockUserRepository.create).toHaveBeenCalledTimes(1);
+      // garante que a senha foi hasheada antes de salvar
+      expect(mockUserRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          password: expect.not.stringContaining('Senha@123')
+        })
+      );
     });
 
     it('deve lançar erro quando email já cadastrado', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(mockUser);
 
-      await expect(userService.create({ name: 'João Silva', email: 'joao@email.com' }))
-        .rejects.toThrow('Email já cadastrado');
+      await expect(userService.create({
+        name: 'João Silva',
+        email: 'joao@email.com',
+        password: 'Senha@123',
+      })).rejects.toThrow('Email já cadastrado');
 
       expect(mockUserRepository.create).not.toHaveBeenCalled();
     });
@@ -84,13 +98,14 @@ describe('UserService', () => {
   });
 
   describe('delete', () => {
-    it('deve deletar usuário com sucesso', async () => {
+    it('deve deletar usuário RECRUITER com sucesso', async () => {
       mockUserRepository.findById.mockResolvedValue(mockUser);
       mockUserRepository.delete.mockResolvedValue(mockUser);
 
       await userService.delete('uuid-1');
 
       expect(mockUserRepository.delete).toHaveBeenCalledWith('uuid-1');
+      expect(mockUserRepository.countByRole).not.toHaveBeenCalled();
     });
 
     it('deve lançar erro quando usuário não encontrado', async () => {
@@ -98,6 +113,26 @@ describe('UserService', () => {
 
       await expect(userService.delete('uuid-inexistente'))
         .rejects.toThrow('Usuário não encontrado');
+    });
+
+    it('deve lançar erro ao tentar remover o único ADMIN', async () => {
+      mockUserRepository.findById.mockResolvedValue({ ...mockUser, role: 'ADMIN' as any });
+      mockUserRepository.countByRole.mockResolvedValue(1);
+
+      await expect(userService.delete('uuid-1'))
+        .rejects.toThrow('Não é possível remover o único administrador do sistema');
+
+      expect(mockUserRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it('deve permitir remover ADMIN quando há mais de um', async () => {
+      mockUserRepository.findById.mockResolvedValue({ ...mockUser, role: 'ADMIN' as any });
+      mockUserRepository.countByRole.mockResolvedValue(2);
+      mockUserRepository.delete.mockResolvedValue(mockUser);
+
+      await userService.delete('uuid-1');
+
+      expect(mockUserRepository.delete).toHaveBeenCalledWith('uuid-1');
     });
   });
 });

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import departmentController from '../controllers/department.controller';
+import { requireRole } from '../middlewares/role.middleware';
 
 const router = Router();
 
@@ -16,6 +17,8 @@ const router = Router();
  *   get:
  *     summary: Lista todos os departamentos
  *     tags: [Departments]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de departamentos
@@ -34,6 +37,8 @@ router.get('/', departmentController.findAll.bind(departmentController));
  *   get:
  *     summary: Busca departamento por ID
  *     tags: [Departments]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -63,6 +68,8 @@ router.get('/:id', departmentController.findById.bind(departmentController));
  *   post:
  *     summary: Criar novo departamento
  *     tags: [Departments]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -76,14 +83,20 @@ router.get('/:id', departmentController.findById.bind(departmentController));
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Department'
- *       400:
+ *       403:
+ *         description: Acesso negado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       409:
  *         description: Departamento já cadastrado
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', departmentController.create.bind(departmentController));
+router.post('/', requireRole('ADMIN'), departmentController.create.bind(departmentController));
 
 /**
  * @swagger
@@ -91,6 +104,8 @@ router.post('/', departmentController.create.bind(departmentController));
  *   put:
  *     summary: Atualizar departamento
  *     tags: [Departments]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -110,10 +125,12 @@ router.post('/', departmentController.create.bind(departmentController));
  *     responses:
  *       200:
  *         description: Departamento atualizado
- *       400:
- *         description: Erro ao atualizar
+ *       403:
+ *         description: Acesso negado
+ *       404:
+ *         description: Departamento não encontrado
  */
-router.put('/:id', departmentController.update.bind(departmentController));
+router.put('/:id', requireRole('ADMIN'), departmentController.update.bind(departmentController));
 
 /**
  * @swagger
@@ -121,6 +138,8 @@ router.put('/:id', departmentController.update.bind(departmentController));
  *   delete:
  *     summary: Remover departamento
  *     tags: [Departments]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -131,9 +150,11 @@ router.put('/:id', departmentController.update.bind(departmentController));
  *     responses:
  *       204:
  *         description: Departamento removido
- *       400:
- *         description: Erro ao remover
+ *       403:
+ *         description: Acesso negado
+ *       404:
+ *         description: Departamento não encontrado
  */
-router.delete('/:id', departmentController.delete.bind(departmentController));
+router.delete('/:id', requireRole('ADMIN'), departmentController.delete.bind(departmentController));
 
 export default router;

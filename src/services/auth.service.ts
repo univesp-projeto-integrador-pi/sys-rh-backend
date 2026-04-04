@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 import userRepository from '../repositories/user.repository';
 import refreshTokenRepository from '../repositories/refreshToken.repository';
 import { AccessTokenPayload, LoginDTO, RegisterDTO } from '../dto/auth.dto';
+import { AppError } from '../middlewares/errorHandler.middleware';
+import { randomUUID } from 'crypto';
 
 class AuthService {
   private generateAccessToken(payload: AccessTokenPayload): string {
@@ -12,9 +14,11 @@ class AuthService {
   }
 
   private generateRefreshToken(payload: AccessTokenPayload): string {
-    return jwt.sign(payload, process.env.JWT_REFRESH_SECRET!, {
-      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as jwt.SignOptions['expiresIn']
-    });
+    return jwt.sign(
+      { ...payload, jti: randomUUID() },
+      process.env.JWT_REFRESH_SECRET!,
+      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN as jwt.SignOptions['expiresIn'] }
+    );
   }
 
   async register(data: RegisterDTO) {
@@ -39,12 +43,11 @@ class AuthService {
     const passwordMatch = await bcrypt.compare(data.password, user.password);
     if (!passwordMatch) throw new Error('Credenciais inválidas');
 
-    const payload: AccessTokenPayload = { userId: user.id, email: user.email };
+    const payload: AccessTokenPayload = { userId: user.id, email: user.email, role: user.role, };
 
     const accessToken  = this.generateAccessToken(payload);
     const refreshToken = this.generateRefreshToken(payload);
 
-    // salva o refresh token no banco com expiração de 7 dias
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
     await refreshTokenRepository.create(user.id, refreshToken, expiresAt);
@@ -57,30 +60,22 @@ class AuthService {
   }
 
   async refresh(token: string) {
-    if (!token) throw new Error('Refresh token não fornecido');
+    if (!token) throw new AppError('Refresh token não fornecido', 401);
 
-    // verifica se o token existe no banco
     const stored = await refreshTokenRepository.findByToken(token);
-    if (!stored) throw new Error('Refresh token inválido');
+    if (!stored) throw new AppError('Refresh token inválido ou expirado', 401);
 
-    // verifica se está expirado
-    if (stored.expiresAt < new Date()) {
-      await refreshTokenRepository.deleteByToken(token);
-      throw new Error('Refresh token expirado');
-    }
-
-    // valida a assinatura do token
     let payload: AccessTokenPayload;
     try {
       payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET!) as AccessTokenPayload;
     } catch {
-      throw new Error('Refresh token inválido');
+      throw new AppError('Refresh token inválido', 401);
     }
 
-    // gera novo access token
     const accessToken = this.generateAccessToken({
       userId: payload.userId,
-      email: payload.email
+      email: payload.email,
+      role: payload.role,
     });
 
     return { accessToken };

@@ -25,6 +25,10 @@ class UserRepository {
   delete(id: string) {
     return prisma.user.delete({ where: { id } });
   }
+
+  countByRole(role: string) {
+    return prisma.user.count({ where: { role: role as any } });
+  }
 }
 
 export default new UserRepository();

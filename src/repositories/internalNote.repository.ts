@@ -9,6 +9,13 @@ class InternalNoteRepository {
     });
   }
 
+  findById(id: string) {
+    return prisma.internalNote.findUnique({
+      where: { id },
+      include: { author: true }
+    });
+  }
+
   create(data: CreateInternalNoteDTO) {
     return prisma.internalNote.create({
       data,
