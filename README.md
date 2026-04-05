@@ -44,11 +44,36 @@ cd sys-rh-backend
 ### 2. Configurar variáveis de ambiente
 
 ```bash
-# Edite o arquivo .env com suas configurações
+# crie o arquivo .env com suas configurações
+# sempre garanta que o .env não suba para o github
+# .env não deve ser comitado, deve existir apenas localmente
 # Configure a DATABASE_URL com a URL do seu PostgreSQL
+
+POSTGRES_DB=dê_um_nome_para_o_banco
+POSTGRES_USER=dê_um_nome_para_o_usuário_do_banco
+POSTGRES_PASSWORD=dê_uma_senha
+POSTGRES_PORT=defina_uma_porta
+
+DATABASE_URL="postgresql://POSTGRES_USER:POSTGRES_PASSWORD@localhost:POSTGRES_PORT/POSTGRES_DB"
+
+POSTGRES_TEST_DB=sys-rh-backend-test-db
+POSTGRES_TEST_PORT=5435
+
+JWT_ACCESS_SECRET= use openssl rand -base64 64 para gerar uma chave aleatória
+JWT_REFRESH_SECRET= use openssl rand -base64 64 para gerar uma chave aleatória
+JWT_ACCESS_EXPIRES_IN=24h
+JWT_REFRESH_EXPIRES_IN=7d
+
+CSRF_SECRET= use openssl rand -base64 64 para gerar uma chave aleatória 
+
+NODE_ENV=test
+
+RATE_LIMIT_WINDOW_MS = medir_em_milisegundos
 ```
 
-### 3. Instalar as dependências
+### 3. Garantir o banco de dados online, garantir as configurações das variaveis de ambientes, dessa forma se garante o que o projeto precisa ter já pronto para então seguir com o projeto da API
+
+### 4. Instalar as dependências
 
 Com npm:
 ```bash
