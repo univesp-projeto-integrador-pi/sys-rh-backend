@@ -56,9 +56,6 @@ POSTGRES_PORT=defina_uma_porta
 
 DATABASE_URL="postgresql://POSTGRES_USER:POSTGRES_PASSWORD@localhost:POSTGRES_PORT/POSTGRES_DB"
 
-POSTGRES_TEST_DB=sys-rh-backend-test-db
-POSTGRES_TEST_PORT=5435
-
 JWT_ACCESS_SECRET= use openssl rand -base64 64 para gerar uma chave aleatória
 JWT_REFRESH_SECRET= use openssl rand -base64 64 para gerar uma chave aleatória
 JWT_ACCESS_EXPIRES_IN=24h
