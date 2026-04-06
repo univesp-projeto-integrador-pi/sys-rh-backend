@@ -31,57 +31,6 @@ Recomendamos o uso do **[Visual Studio Code](https://code.visualstudio.com/)** c
 - **GitLens** - visualização de histórico do Git
 - **Prisma** - extensão oficial para suporte ao Prisma ORM
 
-## 🚀 Como executar o projeto
-
-### 1. Clonar o repositório
-
-```bash
-# Clone o repositório
-git clone https://github.com/univesp-projeto-integrador-pi/sys-rh-backend
-cd sys-rh-backend
-```
-
-### 2. Configurar variáveis de ambiente
-
-```bash
-# crie o arquivo .env com suas configurações
-# sempre garanta que o .env não suba para o github
-# .env não deve ser comitado, deve existir apenas localmente
-# Configure a DATABASE_URL com a URL do seu PostgreSQL
-
-POSTGRES_DB=dê_um_nome_para_o_banco
-POSTGRES_USER=dê_um_nome_para_o_usuário_do_banco
-POSTGRES_PASSWORD=dê_uma_senha
-POSTGRES_PORT=defina_uma_porta
-
-DATABASE_URL="postgresql://POSTGRES_USER:POSTGRES_PASSWORD@localhost:POSTGRES_PORT/POSTGRES_DB"
-
-JWT_ACCESS_SECRET= use openssl rand -base64 64 para gerar uma chave aleatória
-JWT_REFRESH_SECRET= use openssl rand -base64 64 para gerar uma chave aleatória
-JWT_ACCESS_EXPIRES_IN=24h
-JWT_REFRESH_EXPIRES_IN=7d
-
-CSRF_SECRET= use openssl rand -base64 64 para gerar uma chave aleatória 
-
-NODE_ENV=test
-
-RATE_LIMIT_WINDOW_MS = medir_em_milisegundos
-```
-
-### 3. Garantir o banco de dados online, garantir as configurações das variaveis de ambientes, dessa forma se garante o que o projeto precisa ter já pronto para então seguir com o projeto da API
-
-### 4. Instalar as dependências
-
-Com npm:
-```bash
-npm install
-```
-
-Ou com yarn:
-```bash
-yarn install
-```
-
 ## 📊 Modelo de Dados (Prisma ORM)
 
 O sistema utiliza o Prisma como ORM (Object-Relational Mapping) com as seguintes entidades principais:
@@ -173,8 +122,8 @@ Candidate ──┤              │
 ├── package.json          # Dependências e scripts
 └── README.md             # Documentação
 ```
-## Resumo de alguns comandos úteis
 ### [Guide](GUIDE.md)
+### [Examples of requests](/EXAMPLES_OF_REQUESTS.md)
 ---
 
 **Desenvolvido por [Univesp Projeto Integrador](https://github.com/univesp-projeto-integrador-pi)** 👨‍💻
