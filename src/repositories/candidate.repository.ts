@@ -4,7 +4,7 @@ import { CreateCandidateDTO, UpdateCandidateDTO } from "../dto/candidate.dto";
 class CandidateRepository {
   findAll() {
     return prisma.candidate.findMany({
-      where: { deletedAt: null } // soft delete — ignora deletados
+      where: { deletedAt: null }
     });
   }
 

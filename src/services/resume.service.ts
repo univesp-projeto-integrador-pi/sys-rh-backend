@@ -8,7 +8,6 @@ class ResumeService {
   async findByCandidateId(candidateId: string) {
     const candidate = await candidateRepository.findById(candidateId);
 
-    // ← verifica soft delete
     if (!candidate || candidate.deletedAt !== null) {
       throw new AppError('Candidato não encontrado', 404);
     }
@@ -21,7 +20,6 @@ class ResumeService {
   async create(candidateId: string, data: CreateResumeDTO) {
     const candidate = await candidateRepository.findById(candidateId);
 
-    // ← verifica soft delete
     if (!candidate || candidate.deletedAt !== null) {
       throw new AppError('Candidato não encontrado', 404);
     }
@@ -35,7 +33,6 @@ class ResumeService {
   async update(candidateId: string, data: UpdateResumeDTO) {
     const candidate = await candidateRepository.findById(candidateId);
 
-    // ← verifica soft delete
     if (!candidate || candidate.deletedAt !== null) {
       throw new AppError('Candidato não encontrado', 404);
     }

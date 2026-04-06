@@ -1,4 +1,3 @@
-// src/services/jobApplication.service.ts
 import jobApplicationRepository from '../repositories/jobApplication.repository';
 import candidateRepository from '../repositories/candidate.repository';
 import jobPositionRepository from '../repositories/jobPosition.repository';
@@ -42,7 +41,6 @@ class JobApplicationService {
   async updateStage(id: string, data: UpdateJobApplicationDTO, requestingUserId: string) {
     await this.findById(id);
 
-    // ← via internalNoteService agora, não repository diretamente
     await internalNoteService.createAuditNote(
       id,
       requestingUserId,
