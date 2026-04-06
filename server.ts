@@ -34,7 +34,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/csrf-token', csrfRoutes);
 app.use('/api/auth',       authLimiter, authRoutes);
 app.use('/api/jobs',       jobPositionRoutes);
-app.use('/api/candidates', candidateRoutes); 
+app.use('/api/candidates', candidateRoutes); // acho que não faz sentido aqui estar publico
 
 app.use('/api/users',            authMiddleware, userRoutes);
 app.use('/api/departments',      authMiddleware, departmentRoutes);
