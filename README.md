@@ -31,35 +31,6 @@ Recomendamos o uso do **[Visual Studio Code](https://code.visualstudio.com/)** c
 - **GitLens** - visualização de histórico do Git
 - **Prisma** - extensão oficial para suporte ao Prisma ORM
 
-## 🚀 Como executar o projeto
-
-### 1. Clonar o repositório
-
-```bash
-# Clone o repositório
-git clone https://github.com/univesp-projeto-integrador-pi/sys-rh-backend
-cd sys-rh-backend
-```
-
-### 2. Configurar variáveis de ambiente
-
-```bash
-# Edite o arquivo .env com suas configurações
-# Configure a DATABASE_URL com a URL do seu PostgreSQL
-```
-
-### 3. Instalar as dependências
-
-Com npm:
-```bash
-npm install
-```
-
-Ou com yarn:
-```bash
-yarn install
-```
-
 ## 📊 Modelo de Dados (Prisma ORM)
 
 O sistema utiliza o Prisma como ORM (Object-Relational Mapping) com as seguintes entidades principais:
@@ -151,8 +122,8 @@ Candidate ──┤              │
 ├── package.json          # Dependências e scripts
 └── README.md             # Documentação
 ```
-## Resumo de alguns comandos úteis
 ### [Guide](GUIDE.md)
+### [Examples of requests](/EXAMPLES_OF_REQUESTS.md)
 ---
 
 **Desenvolvido por [Univesp Projeto Integrador](https://github.com/univesp-projeto-integrador-pi)** 👨‍💻

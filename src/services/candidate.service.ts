@@ -1,5 +1,6 @@
 import { CreateCandidateDTO, UpdateCandidateDTO } from '../dto/candidate.dto';
 import candidateRepository from '../repositories/candidate.repository';
+import { AppError } from '../middlewares/errorHandler.middleware';
 
 class CandidateService {
   async findAll() {
@@ -8,13 +9,13 @@ class CandidateService {
 
   async findById(id: string) {
     const candidate = await candidateRepository.findById(id);
-    if (!candidate) throw new Error('Candidato não encontrado');
+    if (!candidate) throw new AppError('Candidato não encontrado', 404);
     return candidate;
   }
 
   async create(data: CreateCandidateDTO) {
     const existing = await candidateRepository.findByEmail(data.email);
-    if (existing) throw new Error('Email já cadastrado');
+    if (existing) throw new AppError('Email já cadastrado', 409);
     return candidateRepository.create(data);
   }
 

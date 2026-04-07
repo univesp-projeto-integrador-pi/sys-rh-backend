@@ -1,6 +1,8 @@
 import bcrypt from 'bcrypt';
 import { CreateUserDTO, UpdateUserDTO } from '../dto/user.dto';
 import userRepository from '../repositories/user.repository';
+import { AppError } from '../middlewares/errorHandler.middleware';
+import { CreateUserDTO, UpdateUserDTO } from '../dto/user.dto';
 
 const SALT_ROUNDS = 10;
 
@@ -11,7 +13,7 @@ class UserService {
 
   async findById(id: string) {
     const user = await userRepository.findById(id);
-    if (!user) throw new Error('Usuário não encontrado');
+    if (!user) throw new AppError('Usuário não encontrado', 404);
     return user;
   }
 
@@ -36,7 +38,15 @@ class UserService {
   }
 
   async delete(id: string) {
-    await this.findById(id);
+    const user = await this.findById(id);
+
+    if (user.role === 'ADMIN') {
+      const adminCount = await userRepository.countByRole('ADMIN');
+      if (adminCount <= 1) {
+        throw new AppError('Não é possível remover o único administrador do sistema', 400);
+      }
+    }
+
     return userRepository.delete(id);
   }
 }

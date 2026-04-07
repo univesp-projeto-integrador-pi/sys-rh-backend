@@ -173,6 +173,40 @@ const options: swaggerJsdoc.Options = {
       },
     },
   },
+  RegisterDTO: {
+    type: 'object',
+    required: ['name', 'email', 'password'],
+    properties: {
+      name:     { type: 'string' },
+      email:    { type: 'string', format: 'email' },
+      password: { type: 'string', format: 'password' },
+    },
+  },
+  LoginDTO: {
+    type: 'object',
+    required: ['email', 'password'],
+    properties: {
+      email:    { type: 'string', format: 'email' },
+      password: { type: 'string', format: 'password' },
+    },
+  },
+  AuthResponse: {
+    type: 'object',
+    properties: {
+      accessToken: { type: 'string' },
+      user: { $ref: '#/components/schemas/User' },
+    },
+  },
+  RefreshToken: {
+    type: 'object',
+    properties: {
+      id:        { type: 'string', format: 'uuid' },
+      token:     { type: 'string' },
+      expiresAt: { type: 'string', format: 'date-time' },
+      userId:    { type: 'string', format: 'uuid' },
+      createdAt: { type: 'string', format: 'date-time' },
+    },
+  },
   apis: ['./src/routes/*.ts'],
 };
 

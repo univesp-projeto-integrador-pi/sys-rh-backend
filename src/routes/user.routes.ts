@@ -1,7 +1,25 @@
 import { Router } from 'express';
 import userController from '../controllers/user.controller';
+import { requireRole } from '../middlewares/role.middleware';
+import { validate } from '../middlewares/validate.middleware';
+import { z } from 'zod';
 
 const router = Router();
+
+const createUserSchema = z.object({
+  name:     z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
+  email:    z.string().email('Email inválido'),
+  password: z.string()
+    .min(8, 'Senha deve ter ao menos 8 caracteres')
+    .regex(/[A-Z]/, 'Deve conter ao menos uma letra maiúscula')
+    .regex(/[0-9]/, 'Deve conter ao menos um número')
+    .regex(/[^a-zA-Z0-9]/, 'Deve conter ao menos um caractere especial'),
+  role: z.enum(['ADMIN', 'RECRUITER', 'VIEWER']).optional(),
+});
+
+const updateUserSchema = z.object({
+  name: z.string().min(2).optional(),
+});
 
 /**
  * @swagger
@@ -16,6 +34,8 @@ const router = Router();
  *   get:
  *     summary: Lista todos os usuários
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de usuários
@@ -25,8 +45,10 @@ const router = Router();
  *               type: array
  *               items:
  *                 $ref: '#/components/schemas/User'
+ *       403:
+ *         description: Acesso negado
  */
-router.get('/', userController.findAll.bind(userController));
+router.get('/', requireRole('ADMIN'), userController.findAll.bind(userController));
 
 /**
  * @swagger
@@ -34,6 +56,8 @@ router.get('/', userController.findAll.bind(userController));
  *   get:
  *     summary: Busca usuário por ID
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -48,6 +72,8 @@ router.get('/', userController.findAll.bind(userController));
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
+ *       403:
+ *         description: Acesso negado
  *       404:
  *         description: Usuário não encontrado
  *         content:
@@ -55,7 +81,7 @@ router.get('/', userController.findAll.bind(userController));
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/:id', userController.findById.bind(userController));
+router.get('/:id', requireRole('ADMIN'), userController.findById.bind(userController));
 
 /**
  * @swagger
@@ -63,6 +89,8 @@ router.get('/:id', userController.findById.bind(userController));
  *   post:
  *     summary: Criar novo usuário
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -76,14 +104,16 @@ router.get('/:id', userController.findById.bind(userController));
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/User'
- *       400:
+ *       403:
+ *         description: Acesso negado
+ *       409:
  *         description: Email já cadastrado
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', userController.create.bind(userController));
+router.post('/', requireRole('ADMIN'), validate(createUserSchema), userController.create.bind(userController));
 
 /**
  * @swagger
@@ -91,6 +121,8 @@ router.post('/', userController.create.bind(userController));
  *   put:
  *     summary: Atualizar usuário
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -110,10 +142,12 @@ router.post('/', userController.create.bind(userController));
  *     responses:
  *       200:
  *         description: Usuário atualizado
- *       400:
- *         description: Erro ao atualizar
+ *       403:
+ *         description: Acesso negado
+ *       404:
+ *         description: Usuário não encontrado
  */
-router.put('/:id', userController.update.bind(userController));
+router.put('/:id', requireRole('ADMIN'), validate(updateUserSchema), userController.update.bind(userController));
 
 /**
  * @swagger
@@ -121,6 +155,8 @@ router.put('/:id', userController.update.bind(userController));
  *   delete:
  *     summary: Remover usuário
  *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -132,8 +168,12 @@ router.put('/:id', userController.update.bind(userController));
  *       204:
  *         description: Usuário removido
  *       400:
- *         description: Erro ao remover
+ *         description: Não é possível remover o único administrador
+ *       403:
+ *         description: Acesso negado
+ *       404:
+ *         description: Usuário não encontrado
  */
-router.delete('/:id', userController.delete.bind(userController));
+router.delete('/:id', requireRole('ADMIN'), userController.delete.bind(userController));
 
 export default router;
