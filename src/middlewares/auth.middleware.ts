@@ -16,7 +16,6 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET!) as AccessTokenPayload;
     req.userId = payload.userId;
     req.email  = payload.email;
-    req.role   = payload.role;
     next();
   } catch {
     res.status(401).json({ message: 'Token inválido ou expirado' });
