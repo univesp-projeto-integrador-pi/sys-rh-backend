@@ -23,6 +23,7 @@ const options: swaggerJsdoc.Options = {
             id:        { type: 'string', format: 'uuid' },
             name:      { type: 'string' },
             email:     { type: 'string', format: 'email' },
+            role:      { type: 'string', enum: ['ADMIN', 'RECRUITER', 'VIEWER'], nullable: true },
             createdAt: { type: 'string', format: 'date-time' },
           },
         },

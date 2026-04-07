@@ -83,14 +83,14 @@ describe('RoleMiddleware', () => {
   });
 
   describe('sem role no req', () => {
-    it('deve retornar 401 quando role não está presente', () => {
+    it('deve retornar 403 quando role não está presente', () => {
       const req  = mockReqWithRole(undefined);
       const res  = mockRes();
       const next = mockNext();
 
       requireRole('ADMIN')(req as Request, res as Response, next);
 
-      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.status).toHaveBeenCalledWith(403);
       expect(next).not.toHaveBeenCalled();
     });
   });
