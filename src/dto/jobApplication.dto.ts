@@ -1,4 +1,4 @@
-import { ApplicationStage } from "../generated/prisma/enums";
+import { ApplicationStage } from '../../generated/prisma/enums';
 
 export interface CreateJobApplicationDTO {
   candidateId: string;

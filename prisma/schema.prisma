@@ -8,15 +8,35 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
-  id        String         @id @default(uuid())
-  name      String
-  email     String         @unique
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  notes     InternalNote[]
+  id            String         @id @default(uuid())
+  name          String         // Alterado de 'names' para 'name' (mais semântico)
+  email         String         @unique
+  password      String   
+  role          UserRole       @default(USER) // Define quem é candidato e quem é admin
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  notes         InternalNote[]
+  refreshTokens RefreshToken[]
 
   @@map("users")
+}
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+
+  @@map("refresh_tokens")
 }
 
 model Skill {
