@@ -6,6 +6,11 @@ datasource db {
   provider = "postgresql"
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
   id           String    @id @default(uuid())
   name         String
@@ -19,6 +24,17 @@ model User {
   refreshTokens RefreshToken[]
 
   @@map("users")
+}
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+
+  @@map("refresh_tokens")
 }
 
 model RefreshToken {
@@ -190,10 +206,4 @@ enum ApplicationStage {
   OFFER
   HIRED
   REJECTED
-}
-
-enum Role {
-  ADMIN
-  RECRUITER
-  VIEWER
 }

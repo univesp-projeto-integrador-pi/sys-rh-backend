@@ -1,4 +1,4 @@
-import { JobStatus } from "@prisma/client";
+import { JobStatus } from '../../generated/prisma/enums';
 
 export interface CreateJobPositionDTO {
   title: string;

@@ -1,7 +1,10 @@
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
+import { CreateUserDTO, UpdateUserDTO } from '../dto/user.dto';
 import userRepository from '../repositories/user.repository';
 import { AppError } from '../middlewares/errorHandler.middleware';
 import { CreateUserDTO, UpdateUserDTO } from '../dto/user.dto';
+
+const SALT_ROUNDS = 10;
 
 class UserService {
   async findAll() {
@@ -16,15 +19,22 @@ class UserService {
 
   async create(data: CreateUserDTO) {
     const existing = await userRepository.findByEmail(data.email);
-    if (existing) throw new AppError('Email já cadastrado', 409);
+    if (existing) throw new Error('Email já cadastrado');
 
-    const hashedPassword = await bcrypt.hash(data.password, 10);
-    return userRepository.create({ ...data, password: hashedPassword });
+    const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+    const userData: CreateUserDTO = { ...data, password: hashedPassword };
+    return userRepository.create(userData);
   }
 
   async update(id: string, data: UpdateUserDTO) {
     await this.findById(id);
-    return userRepository.update(id, data);
+
+    const updateData = { ...data };
+    if (updateData.password) {
+      updateData.password = await bcrypt.hash(updateData.password, SALT_ROUNDS);
+    }
+
+    return userRepository.update(id, updateData);
   }
 
   async updateRole(id: string, role: 'ADMIN' | 'RECRUITER' | 'VIEWER') {
