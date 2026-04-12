@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import { CreateUserDTO, UpdateUserDTO } from '../dto/user.dto';
 import userRepository from '../repositories/user.repository';
 import { AppError } from '../middlewares/errorHandler.middleware';
-import { CreateUserDTO, UpdateUserDTO } from '../dto/user.dto';
+import { UserRole } from '@prisma/client';
 
 const SALT_ROUNDS = 10;
 
@@ -37,12 +37,12 @@ class UserService {
     return userRepository.update(id, updateData);
   }
 
-  async updateRole(id: string, role: 'ADMIN' | 'RECRUITER' | 'VIEWER') {
+  async updateRole(id: string, role: UserRole) {
     await this.findById(id);
 
-    if (role !== 'ADMIN') {
+    if (role !== UserRole.ADMIN) {
       const user = await userRepository.findById(id);
-      if (user?.role === 'ADMIN') {
+      if (user?.role === UserRole.ADMIN) {
         const adminCount = await userRepository.countByRole('ADMIN');
         if (adminCount <= 1) {
           throw new AppError('Não é possível rebaixar o único administrador do sistema', 400);

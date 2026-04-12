@@ -5,7 +5,6 @@ import swaggerSpec from './src/config/swagger';
 import { globalLimiter, authLimiter } from './src/middlewares/rateLimit.middleware';
 import { errorHandler } from './src/middlewares/errorHandler.middleware';
 import { authMiddleware } from './src/middlewares/auth.middleware';
-import { sanitizeMiddleware } from './src/middlewares/sanitize.middleware';
 import authRoutes from './src/routes/auth.routes';
 import userRoutes from './src/routes/user.routes';
 import departmentRoutes from './src/routes/department.routes';
@@ -13,6 +12,7 @@ import candidateRoutes from './src/routes/candidate.routes';
 import jobPositionRoutes from './src/routes/jobPosition.routes';
 import jobApplicationRoutes from './src/routes/jobApplication.routes';
 import csrfRoutes from './src/routes/csrf.routes';
+import helmet from 'helmet';
 
 const app = express();
 

@@ -1,3 +1,5 @@
+import { UserRole } from "@prisma/client";
+
 export interface RegisterDTO {
   name: string;
   email: string;
@@ -12,7 +14,7 @@ export interface LoginDTO {
 export interface AccessTokenPayload {
   userId: string;
   email: string;
-  role: 'ADMIN' | 'RECRUITER' | 'VIEWER' | null;
+  role: UserRole;
 }
 
 export interface AuthResponseDTO {

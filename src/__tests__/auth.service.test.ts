@@ -1,12 +1,12 @@
 import authService from '../services/auth.service';
 import userRepository from '../repositories/user.repository';
 import refreshTokenRepository from '../repositories/refreshToken.repository';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 jest.mock('../repositories/user.repository');
 jest.mock('../repositories/refreshToken.repository');
-jest.mock('bcryptjs');
+jest.mock('bcrypt');
 jest.mock('jsonwebtoken');
 
 const mockUserRepository         = userRepository         as jest.Mocked<typeof userRepository>;
