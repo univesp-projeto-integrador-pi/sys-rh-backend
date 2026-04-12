@@ -32,6 +32,14 @@ class UserController {
         } catch (error) { next(error); }
     }
 
+    async updateRole(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.params as { id: string };
+            const user = await userService.updateRole(id, req.body.role);
+            res.json(user);
+        } catch (error) { next(error); }
+    }
+
     async delete(req: Request, res: Response, next: NextFunction) {
         try {
             const { id } = req.params as { id: string };

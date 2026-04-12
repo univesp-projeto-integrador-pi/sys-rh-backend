@@ -37,6 +37,22 @@ class UserService {
     return userRepository.update(id, updateData);
   }
 
+  async updateRole(id: string, role: 'ADMIN' | 'RECRUITER' | 'VIEWER') {
+    await this.findById(id);
+
+    if (role !== 'ADMIN') {
+      const user = await userRepository.findById(id);
+      if (user?.role === 'ADMIN') {
+        const adminCount = await userRepository.countByRole('ADMIN');
+        if (adminCount <= 1) {
+          throw new AppError('Não é possível rebaixar o único administrador do sistema', 400);
+        }
+      }
+    }
+
+    return userRepository.update(id, { role });
+  }
+
   async delete(id: string) {
     const user = await this.findById(id);
 
