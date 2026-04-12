@@ -14,8 +14,7 @@ Cria uma nova conta no sistema.
 {
     "name": "test test",
     "email": "tests@gmail.com",
-    "password": "senha_forte_!@#$QWEERT",
-    "role": "ADMIN"
+    "password": "senha_forte_!@#$QWEERT"
 }
 ```
 
