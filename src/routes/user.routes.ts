@@ -117,9 +117,9 @@ router.post('/', requireRole('ADMIN'), validate(createUserSchema), userControlle
 
 /**
  * @swagger
- * /api/users/{id}:
- *   put:
- *     summary: Atualizar usuário
+ * /api/users/{id}/role:
+ *   patch:
+ *     summary: Atualizar role do usuário
  *     tags: [Users]
  *     security:
  *       - bearerAuth: []
@@ -136,18 +136,20 @@ router.post('/', requireRole('ADMIN'), validate(createUserSchema), userControlle
  *         application/json:
  *           schema:
  *             type: object
+ *             required: [role]
  *             properties:
- *               name:
+ *               role:
  *                 type: string
+ *                 enum: [ADMIN, RECRUITER, VIEWER]
  *     responses:
  *       200:
- *         description: Usuário atualizado
+ *         description: Role atualizada
  *       403:
  *         description: Acesso negado
  *       404:
  *         description: Usuário não encontrado
  */
-router.put('/:id', requireRole('ADMIN'), validate(updateUserSchema), userController.update.bind(userController));
+router.patch('/:id/role', requireRole('ADMIN'), validate(updateUserSchema), userController.updateRole.bind(userController));
 
 /**
  * @swagger

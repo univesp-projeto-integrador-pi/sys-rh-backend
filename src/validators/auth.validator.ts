@@ -8,7 +8,6 @@ export const registerSchema = z.object({
     .regex(/[A-Z]/, 'Senha deve conter ao menos uma letra maiúscula')
     .regex(/[0-9]/, 'Senha deve conter ao menos um número')
     .regex(/[^a-zA-Z0-9]/, 'Senha deve conter ao menos um caractere especial'),
-    role: z.enum(['ADMIN', 'RECRUITER', 'VIEWER']).optional(),
   });
 
 export const loginSchema = z.object({
