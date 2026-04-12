@@ -9,6 +9,8 @@ datasource db {
 enum UserRole {
   USER
   ADMIN
+  RECRUITER
+  VIEWER
 }
 
 model User {
@@ -16,7 +18,7 @@ model User {
   name         String
   email        String    @unique
   password     String
-  role         Role?      
+  role         UserRole      @default(USER)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -24,17 +26,6 @@ model User {
   refreshTokens RefreshToken[]
 
   @@map("users")
-}
-model RefreshToken {
-  id        String   @id @default(uuid())
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    String
-
-  @@map("refresh_tokens")
 }
 
 model RefreshToken {

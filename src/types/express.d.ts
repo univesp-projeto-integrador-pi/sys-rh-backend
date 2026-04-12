@@ -1,3 +1,4 @@
+import { UserRole } from '@prisma/client';
 import { Request } from 'express';
 
 declare global {
@@ -5,7 +6,7 @@ declare global {
     interface Request {
       userId?: string;
       email?: string;
-      role?:   'ADMIN' | 'RECRUITER' | 'VIEWER' | null;
+      role?:   UserRole;
     }
   }
 }
