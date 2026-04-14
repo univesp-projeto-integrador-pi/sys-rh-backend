@@ -124,6 +124,7 @@ Candidate ──┤              │
 ```
 ### [Guide](GUIDE.md)
 ### [Examples of requests](/EXAMPLES_OF_REQUESTS.md)
+### [Guia de Sobrevivência](/IMPORTANT_TERMS.md)
 ---
 
 **Desenvolvido por [Univesp Projeto Integrador](https://github.com/univesp-projeto-integrador-pi)** 👨‍💻
