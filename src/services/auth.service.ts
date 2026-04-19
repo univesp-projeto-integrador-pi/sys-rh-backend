@@ -23,7 +23,7 @@ class AuthService {
 
   async register(data: RegisterDTO) {
     const existing = await userRepository.findByEmail(data.email);
-    if (existing) throw new Error('Email já cadastrado');
+    if (existing) throw new AppError('Email já cadastrado', 409);
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
@@ -38,10 +38,10 @@ class AuthService {
 
   async login(data: LoginDTO) {
     const user = await userRepository.findByEmail(data.email);
-    if (!user) throw new Error('Credenciais inválidas');
+    if (!user) throw new AppError('Credenciais inválidas', 401);
 
     const passwordMatch = await bcrypt.compare(data.password, user.password);
-    if (!passwordMatch) throw new Error('Credenciais inválidas');
+    if (!passwordMatch) throw new AppError('Credenciais inválidas', 401);
 
     const payload: AccessTokenPayload = { userId: user.id, email: user.email, role: user.role, };
 
@@ -55,7 +55,12 @@ class AuthService {
     return {
       accessToken,
       refreshToken,
-      user: { id: user.id, name: user.name, email: user.email }
+      user: { 
+        id: user.id, 
+        name: user.name, 
+        email: user.email, 
+        role: user.role // <--- AQUI ESTÁ A CORREÇÃO!
+      }
     };
   }
 
@@ -82,7 +87,7 @@ class AuthService {
   }
 
   async logout(token: string) {
-    if (!token) throw new Error('Refresh token não fornecido');
+    if (!token) throw new AppError('Refresh token não fornecido', 401);
     await refreshTokenRepository.deleteByToken(token);
   }
 
