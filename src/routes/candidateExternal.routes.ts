@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import resumeController from '../controllers/resume.controller';
 import { validate } from '../middlewares/validate.middleware';
+import { authMiddleware } from '../middlewares/auth.middleware'; // 👈 Adicionado
 import { createCandidateSchema, updateCandidateSchema } from '../validators/candidate.validator';
 import candidateExternalController from '../controllers/candidateExternal.controller';
 
@@ -49,19 +50,14 @@ router.post('/', validate(createCandidateSchema), candidateExternalController.cr
  *     tags: [Candidates]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - fullName
  *             properties:
  *               fullName:
  *                 type: string
@@ -146,11 +142,8 @@ router.get('/:candidateId/resume', resumeController.findByCandidateId.bind(resum
  *             $ref: '#/components/schemas/CreateResumeDTO'
  *     responses:
  *       201:
- *         description: Currículo criado
- *       409:
- *         description: Candidato já possui currículo
+ *         description: Candidato criado
  */
-router.post('/:candidateId/resume', resumeController.create.bind(resumeController));
 
 /**
  * @swagger

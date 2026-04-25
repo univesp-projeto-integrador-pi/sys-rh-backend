@@ -6,5 +6,7 @@ export const createJobApplicationSchema = z.object({
 });
 
 export const updateStageSchema = z.object({
-  currentStage: z.enum(['APPLIED', 'SCREENING', 'INTERVIEW', 'OFFER', 'HIRED', 'REJECTED']),
+  currentStage: z.enum(['APPLIED', 'SCREENING', 'INTERVIEW', 'OFFER', 'HIRED', 'REJECTED'], {
+    errorMap: () => ({ message: "Etapa da candidatura inválida" })
+  }),
 });

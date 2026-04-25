@@ -85,7 +85,6 @@ class JobPositionService {
    * @throws AppError 404 - Vaga não encontrada
    */
   async update(id: string, data: UpdateJobPositionDTO) {
-    await this.findById(id);
     return jobPositionRepository.update(id, data);
   }
 
@@ -102,7 +101,6 @@ class JobPositionService {
    * @throws AppError 404 - Vaga não encontrada
    */
   async delete(id: string) {
-    await this.findById(id);
     return jobPositionRepository.delete(id);
   }
 }

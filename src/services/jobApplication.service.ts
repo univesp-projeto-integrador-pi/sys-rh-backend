@@ -4,7 +4,7 @@ import jobPositionRepository from '../repositories/jobPosition.repository';
 import internalNoteService from './internalNote.service';
 import internalProfileService from './internalProfile.service';
 import { AppError } from '../middlewares/errorHandler.middleware';
-import { CreateJobApplicationDTO, UpdateJobApplicationDTO } from '../dto/jobApplication.dto';
+import prisma from '../config/client'; 
 
 /**
  * @service JobApplicationService

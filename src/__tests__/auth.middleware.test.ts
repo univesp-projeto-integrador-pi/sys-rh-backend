@@ -20,7 +20,7 @@ describe('AuthMiddleware', () => {
   describe('quando o token é válido', () => {
     it('deve chamar next() e setar userId e email no req', () => {
       const token = jwt.sign(
-        { userId: 'user-123', email: 'user@email.com' },
+        { userId: 'user-123', email: 'user@email.com', role: 'USER' },
         JWT_SECRET
       );
 
@@ -33,6 +33,25 @@ describe('AuthMiddleware', () => {
       expect(next).toHaveBeenCalledTimes(1);
       expect((req as any).userId).toBe('user-123');
       expect((req as any).email).toBe('user@email.com');
+      expect((req as any).role).toBe('USER');
+      expect(res.status).not.toHaveBeenCalled();
+    });
+
+    it('deve setar role como null quando token não contém role', () => {
+      const token = jwt.sign(
+        { userId: 'user-456', email: 'user456@email.com' },
+        JWT_SECRET
+      );
+
+      const req  = { headers: { authorization: `Bearer ${token}` } } as Partial<Request>;
+      const res  = mockRes();
+      const next = mockNext();
+
+      authMiddleware(req as Request, res as Response, next);
+
+      expect(next).toHaveBeenCalledTimes(1);
+      expect((req as any).userId).toBe('user-456');
+      expect((req as any).role).toBe(null);
       expect(res.status).not.toHaveBeenCalled();
     });
   });
