@@ -122,12 +122,13 @@ Candidate ──┤              │
 ├── package.json          # Dependências e scripts
 └── README.md             # Documentação
 ```
-### [Guide](GUIDE.md)
-### [Visão extensa do sistema](/COMPLETE_USER_GUIDE.md)
-### [Examples of requests](/EXAMPLES_OF_REQUESTS.md)
-### [Guia de Sobrevivência](/IMPORTANT_TERMS.md)
-### [Breve descrição sobre API](/BRIEF_DESCRIPTION.md)
-### [Sugestão de acompanhamento](/SUGESTION_FLOW.md)
+### [Guide](/docs/GUIDE.md)
+### [Visão extensa do sistema](/docs/COMPLETE_USER_GUIDE.md)
+### [Examples of requests](/docs/EXAMPLES_OF_REQUESTS.md)
+### [Guia de Sobrevivência](/docs/IMPORTANT_TERMS.md)
+### [Breve descrição sobre API](/docs/BRIEF_DESCRIPTION.md)
+### [Sugestão de acompanhamento](/docs/SUGESTION_FLOW.md)
+### [Problemas iniciais encontrados](/docs/PROBLEMAS_PARA_RESOLVER.md)
 ---
 
 **Desenvolvido por [Univesp Projeto Integrador](https://github.com/univesp-projeto-integrador-pi)** 👨‍💻
