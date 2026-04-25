@@ -30,13 +30,13 @@ app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/api/csrf-token', csrfRoutes);
-app.use('/api/auth',       authLimiter, authRoutes);
 app.use('/api/jobs',       jobPositionRoutes);
-app.use('/api/candidates', candidateRoutes); // acho que não faz sentido aqui estar publico
+app.use('/api/auth',       authLimiter, authRoutes);
 
-app.use('/api/users',            authMiddleware, userRoutes);
-app.use('/api/departments',      authMiddleware, departmentRoutes);
-app.use('/api/job-applications', authMiddleware, jobApplicationRoutes);
+app.use('/api/users',             authMiddleware, userRoutes);
+app.use('/api/candidates',        authMiddleware, candidateRoutes);
+app.use('/api/departments',       authMiddleware, departmentRoutes);
+app.use('/api/job-applications',  authMiddleware, jobApplicationRoutes);
 app.use('/api/internal-profiles', authMiddleware, internalProfileRoutes);
 
 app.use(errorHandler);
