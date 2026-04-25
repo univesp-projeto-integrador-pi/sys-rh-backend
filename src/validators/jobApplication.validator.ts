@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 export const createJobApplicationSchema = z.object({
-  candidateId: z.string().uuid('ID de candidato inválido'),
-  positionId:  z.string().uuid('ID de vaga inválido'),
+  candidateId: z.uuid('ID de candidato inválido'),
+  positionId:  z.uuid('ID de vaga inválido'),
 });
 
 export const updateStageSchema = z.object({
