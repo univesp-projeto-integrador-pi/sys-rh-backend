@@ -4,6 +4,7 @@ import jobPositionRepository from '../repositories/jobPosition.repository';
 import internalNoteService from './internalNote.service';
 import { AppError } from '../middlewares/errorHandler.middleware';
 import { CreateJobApplicationDTO, UpdateJobApplicationDTO } from '../dto/jobApplication.dto';
+import internalProfileService from './internalProfile.service';
 
 class JobApplicationService {
   async findAll() {
@@ -38,7 +39,7 @@ class JobApplicationService {
     return jobApplicationRepository.create(data);
   }
 
-  async updateStage(id: string, data: UpdateJobApplicationDTO, requestingUserId: string) {
+  /*async updateStage(id: string, data: UpdateJobApplicationDTO, requestingUserId: string) {
     await this.findById(id);
 
     await internalNoteService.createAuditNote(
@@ -48,11 +49,32 @@ class JobApplicationService {
     );
 
     return jobApplicationRepository.update(id, data);
-  }
+  }*/
 
   async delete(id: string) {
     await this.findById(id);
     return jobApplicationRepository.softDelete(id);
+  }
+
+  async updateStage(id: string, data: UpdateJobApplicationDTO, requestingUserId: string) {
+    const application = await this.findById(id);
+
+    await internalNoteService.createAuditNote(
+      id,
+      requestingUserId,
+      `Etapa alterada para ${data.currentStage}`
+    );
+
+    const updated = await jobApplicationRepository.update(id, data);
+
+    if (data.currentStage === 'HIRED') {
+      await internalProfileService.createFromHiring(
+        application.candidateId,
+        application.position.departmentId
+      );
+    }
+
+    return updated;
   }
 }
 

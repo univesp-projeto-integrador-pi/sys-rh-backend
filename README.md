@@ -123,6 +123,7 @@ Candidate ──┤              │
 └── README.md             # Documentação
 ```
 ### [Guide](GUIDE.md)
+### [Visão extensa do sistema](/COMPLETE_USER_GUIDE.md)
 ### [Examples of requests](/EXAMPLES_OF_REQUESTS.md)
 ### [Guia de Sobrevivência](/IMPORTANT_TERMS.md)
 ### [Breve descrição sobre API](/BRIEF_DESCRIPTION.md)
