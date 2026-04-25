@@ -13,6 +13,7 @@ import jobPositionRoutes from './src/routes/jobPosition.routes';
 import jobApplicationRoutes from './src/routes/jobApplication.routes';
 import csrfRoutes from './src/routes/csrf.routes';
 import helmet from 'helmet';
+import internalProfileRoutes from './src/routes/internalProfile.routes';
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use('/api/candidates', candidateRoutes); // acho que não faz sentido aqui e
 app.use('/api/users',            authMiddleware, userRoutes);
 app.use('/api/departments',      authMiddleware, departmentRoutes);
 app.use('/api/job-applications', authMiddleware, jobApplicationRoutes);
+app.use('/api/internal-profiles', authMiddleware, internalProfileRoutes);
 
 app.use(errorHandler);
 
