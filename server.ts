@@ -10,6 +10,7 @@ import userRoutes from './src/routes/user.routes';
 import departmentRoutes from './src/routes/department.routes';
 import candidateRoutes from './src/routes/candidate.routes';
 import jobPositionRoutes from './src/routes/jobPosition.routes';
+import jobPositionAvailableRoutes from './src/routes/jobPositionAvailable.routes';
 import jobApplicationRoutes from './src/routes/jobApplication.routes';
 import csrfRoutes from './src/routes/csrf.routes';
 import helmet from 'helmet';
@@ -29,14 +30,15 @@ app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use('/api/csrf-token', csrfRoutes);
-app.use('/api/auth',       authLimiter, authRoutes);
-app.use('/api/job-applications',  jobApplicationRoutes);
+app.use('/api/csrf-token',      csrfRoutes);
+app.use('/api/auth',            authLimiter, authRoutes);
+app.use('/api/jobs-available',  jobPositionAvailableRoutes);
 
 app.use('/api/users',             authMiddleware, userRoutes);
 app.use('/api/candidates',        authMiddleware, candidateRoutes);
 app.use('/api/departments',       authMiddleware, departmentRoutes);
-app.use('/api/jobs',              authMiddleware, jobPositionRoutes);
+app.use('/api/jobs-services',     authMiddleware, jobPositionRoutes);
+app.use('/api/job-applications',  authMiddleware, jobApplicationRoutes);
 app.use('/api/internal-profiles', authMiddleware, internalProfileRoutes);
 
 app.use(errorHandler);
