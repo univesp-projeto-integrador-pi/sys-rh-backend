@@ -24,12 +24,10 @@ class JobPositionService {
   }
 
   async update(id: string, data: UpdateJobPositionDTO) {
-    await this.findById(id);
     return jobPositionRepository.update(id, data);
   }
 
   async delete(id: string) {
-    await this.findById(id);
     return jobPositionRepository.delete(id);
   }
 }

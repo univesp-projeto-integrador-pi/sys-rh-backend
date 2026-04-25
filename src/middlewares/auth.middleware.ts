@@ -18,7 +18,11 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     req.email  = payload.email;
     req.role   = payload.role ?? null;
     next();
-  } catch {
-    res.status(401).json({ message: 'Token inválido ou expirado' });
+  } catch (err: any) {
+    // Esse log vai aparecer no terminal do VS Code (Backend)
+    console.error("❌ ERRO NO JWT:", err.message); 
+    
+    // Essa mensagem vai aparecer no seu log do Front-end
+    res.status(401).json({ message: `Sessão inválida: ${err.message}` });
   }
 }

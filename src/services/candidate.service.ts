@@ -13,9 +13,15 @@ class CandidateService {
     return candidate;
   }
 
+  // 🚀 NOVO: Busca por e-mail para apoiar o Controller
+  async findByEmail(email: string) {
+    return candidateRepository.findByEmail(email);
+  }
+
   async create(data: CreateCandidateDTO) {
     const existing = await candidateRepository.findByEmail(data.email);
-    if (existing) throw new AppError('Email já cadastrado', 409);
+    if (existing) throw new AppError('Você já possui um perfil de candidato cadastrado.', 409);
+    
     return candidateRepository.create(data);
   }
 

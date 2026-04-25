@@ -2,6 +2,7 @@ import { Router } from 'express';
 import candidateController from '../controllers/candidate.controller';
 import resumeController from '../controllers/resume.controller';
 import { validate } from '../middlewares/validate.middleware';
+import { authMiddleware } from '../middlewares/auth.middleware'; // 👈 Adicionado
 import { createCandidateSchema, updateCandidateSchema } from '../validators/candidate.validator';
 import { requireRole } from '../middlewares/role.middleware';
 
@@ -14,225 +15,47 @@ const router = Router();
  *   description: Gestão de candidatos
  */
 
-/**
- * @swagger
- * /api/candidates:
- *   get:
- *     summary: Lista todos os candidatos
- *     tags: [Candidates]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Lista de candidatos
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Candidate'
- */
-router.get('/', candidateController.findAll.bind(candidateController));
+// 🚀 NOVO: Rota para o usuário ver o próprio perfil (Essencial para o Frontend)
+router.get('/me', authMiddleware, candidateController.getMe.bind(candidateController));
 
-/**
- * @swagger
- * /api/candidates/{id}:
- *   get:
- *     summary: Busca candidato por ID
- *     tags: [Candidates]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *     responses:
- *       200:
- *         description: Candidato encontrado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Candidate'
- *       404:
- *         description: Candidato não encontrado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- */
-router.get('/:id', candidateController.findById.bind(candidateController));
+// Listagem e busca por ID protegidas para RH/Admin
+router.get('/', authMiddleware, requireRole('ADMIN', 'RECRUITER'), candidateController.findAll.bind(candidateController));
+router.get('/:id', authMiddleware, requireRole('ADMIN', 'RECRUITER'), candidateController.findById.bind(candidateController));
 
 /**
  * @swagger
  * /api/candidates:
  *   post:
- *     summary: Cadastrar novo candidato (público)
- *     tags: [Candidates]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreateCandidateDTO'
- *     responses:
- *       201:
- *         description: Candidato criado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Candidate'
- *       409:
- *         description: Email já cadastrado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- */
-router.post('/', validate(createCandidateSchema), candidateController.create.bind(candidateController));
-
-/**
- * @swagger
- * /api/candidates/{id}:
- *   put:
- *     summary: Atualizar candidato
+ *     summary: Criar perfil de candidato (vincular ao usuário logado)
  *     tags: [Candidates]
  *     security:
  *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - fullName
  *             properties:
  *               fullName:
  *                 type: string
  *               phone:
  *                 type: string
  *     responses:
- *       200:
- *         description: Candidato atualizado
- *       403:
- *         description: Acesso negado
- *       404:
- *         description: Candidato não encontrado
- */
-router.put('/:id', requireRole('ADMIN', 'RECRUITER'), validate(updateCandidateSchema), candidateController.update.bind(candidateController));
-
-/**
- * @swagger
- * /api/candidates/{id}:
- *   delete:
- *     summary: Remover candidato (soft delete)
- *     tags: [Candidates]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *     responses:
- *       204:
- *         description: Candidato removido
- *       403:
- *         description: Acesso negado
- *       404:
- *         description: Candidato não encontrado
- */
-router.delete('/:id', requireRole('ADMIN'), candidateController.delete.bind(candidateController));
-
-/**
- * @swagger
- * /api/candidates/{candidateId}/resume:
- *   get:
- *     summary: Busca currículo do candidato
- *     tags: [Candidates]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: candidateId
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *     responses:
- *       200:
- *         description: Currículo encontrado
- *       404:
- *         description: Currículo não encontrado
- */
-router.get('/:candidateId/resume', resumeController.findByCandidateId.bind(resumeController));
-
-/**
- * @swagger
- * /api/candidates/{candidateId}/resume:
- *   post:
- *     summary: Criar currículo do candidato (público)
- *     tags: [Candidates]
- *     parameters:
- *       - in: path
- *         name: candidateId
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreateResumeDTO'
- *     responses:
  *       201:
- *         description: Currículo criado
- *       409:
- *         description: Candidato já possui currículo
+ *         description: Candidato criado
  */
-router.post('/:candidateId/resume', resumeController.create.bind(resumeController));
 
-/**
- * @swagger
- * /api/candidates/{candidateId}/resume:
- *   put:
- *     summary: Atualizar currículo do candidato
- *     tags: [Candidates]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: candidateId
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreateResumeDTO'
- *     responses:
- *       200:
- *         description: Currículo atualizado
- *       403:
- *         description: Acesso negado
- *       404:
- *         description: Currículo não encontrado
- */
-router.put('/:candidateId/resume', requireRole('ADMIN', 'RECRUITER'), resumeController.update.bind(resumeController));
+router.post('/', authMiddleware, validate(createCandidateSchema), candidateController.create.bind(candidateController));
+
+router.put('/:id', authMiddleware, requireRole('ADMIN', 'RECRUITER'), validate(updateCandidateSchema), candidateController.update.bind(candidateController));
+router.delete('/:id', authMiddleware, requireRole('ADMIN'), candidateController.delete.bind(candidateController));
+
+// --- CURRÍCULOS (Protegidos) ---
+router.get('/:candidateId/resume', authMiddleware, resumeController.findByCandidateId.bind(resumeController));
+router.post('/:candidateId/resume', authMiddleware, resumeController.create.bind(resumeController));
+router.put('/:candidateId/resume', authMiddleware, requireRole('ADMIN', 'RECRUITER'), resumeController.update.bind(resumeController));
 
 export default router;

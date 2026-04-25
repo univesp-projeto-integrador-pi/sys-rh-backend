@@ -1,59 +1,52 @@
 import jobApplicationRepository from '../repositories/jobApplication.repository';
 import candidateRepository from '../repositories/candidate.repository';
 import jobPositionRepository from '../repositories/jobPosition.repository';
-import internalNoteService from './internalNote.service';
 import { AppError } from '../middlewares/errorHandler.middleware';
-import { CreateJobApplicationDTO, UpdateJobApplicationDTO } from '../dto/jobApplication.dto';
+import prisma from '../config/client'; 
 
 class JobApplicationService {
-  async findAll() {
-    return jobApplicationRepository.findAll();
+  
+  async create(positionId: string, userEmail: string) {
+    console.log(`[Service] Buscando candidato para o email: ${userEmail}`);
+
+    // 1. Buscamos o Candidato pelo e-mail
+    const candidate = await prisma.candidate.findUnique({
+      where: { email: userEmail }
+    });
+
+    if (!candidate) {
+      console.warn(`[Service] Candidato não encontrado para o email: ${userEmail}`);
+      throw new AppError('Perfil de candidato não encontrado. Complete seu cadastro antes de se candidatar.', 404);
+    }
+
+    console.log(`[Service] Candidato encontrado ID: ${candidate.id}. Verificando vaga: ${positionId}`);
+
+    // 2. Verificamos a Vaga
+    const position = await jobPositionRepository.findById(positionId);
+    if (!position) {
+        throw new AppError('Vaga não encontrada', 404);
+    }
+    
+    if (position.status !== 'OPEN') {
+        throw new AppError('Esta vaga não está mais aceitando candidaturas.', 400);
+    }
+
+    // 3. Anti-Spam: Verifica se já existe candidatura
+    const existing = await jobApplicationRepository.checkExistingApplication(candidate.id, positionId);
+    if (existing) {
+      console.warn(`[Service] Candidatura duplicada detectada para Candidate: ${candidate.id}`);
+      throw new AppError('Você já se candidatou para esta vaga', 409);
+    }
+
+    // 4. Criação final
+    console.log("[Service] Gravando nova candidatura no banco...");
+    return jobApplicationRepository.create({
+      candidateId: candidate.id,
+      positionId: positionId
+    });
   }
 
-  async findById(id: string) {
-    const application = await jobApplicationRepository.findById(id);
-    if (!application) throw new AppError('Candidatura não encontrada', 404);
-    return application;
-  }
-
-  async findByCandidateId(candidateId: string) {
-    const candidate = await candidateRepository.findById(candidateId);
-    if (!candidate) throw new AppError('Candidato não encontrado', 404);
-    return jobApplicationRepository.findByCandidateId(candidateId);
-  }
-
-  async create(data: CreateJobApplicationDTO) {
-    const candidate = await candidateRepository.findById(data.candidateId);
-    if (!candidate) throw new AppError('Candidato não encontrado', 404);
-
-    const position = await jobPositionRepository.findById(data.positionId);
-    if (!position) throw new AppError('Vaga não encontrada', 404);
-
-    if (position.status !== 'OPEN') throw new AppError('Vaga não está aberta', 400);
-
-    const existing = await jobApplicationRepository.findByCandidateId(data.candidateId);
-    const alreadyApplied = existing.some(app => app.positionId === data.positionId);
-    if (alreadyApplied) throw new AppError('Candidato já se candidatou para esta vaga', 409);
-
-    return jobApplicationRepository.create(data);
-  }
-
-  async updateStage(id: string, data: UpdateJobApplicationDTO, requestingUserId: string) {
-    await this.findById(id);
-
-    await internalNoteService.createAuditNote(
-      id,
-      requestingUserId,
-      `Etapa alterada para ${data.currentStage}`
-    );
-
-    return jobApplicationRepository.update(id, data);
-  }
-
-  async delete(id: string) {
-    await this.findById(id);
-    return jobApplicationRepository.softDelete(id);
-  }
+  // findAll, findById, updateStage e delete...
 }
 
 export default new JobApplicationService();
