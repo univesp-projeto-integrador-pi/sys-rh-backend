@@ -9,6 +9,55 @@ const router = Router();
 /**
  * @swagger
  * /api/jobs:
+ *   get:
+ *     summary: Lista todas as vagas
+ *     tags: [Jobs]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de vagas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/JobPosition'
+ */
+router.get('/', jobPositionController.findAll.bind(jobPositionController));
+
+/**
+ * @swagger
+ * /api/jobs/{id}:
+ *   get:
+ *     summary: Busca vaga por ID (público)
+ *     tags: [Jobs]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Vaga encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/JobPosition'
+ *       404:
+ *         description: Vaga não encontrada
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.get('/:id', jobPositionController.findById.bind(jobPositionController));
+
+/**
+ * @swagger
+ * /api/jobs:
  *   post:
  *     summary: Criar nova vaga
  *     tags: [Jobs]

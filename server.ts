@@ -30,15 +30,18 @@ app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-app.use('/api/csrf-token',      csrfRoutes);
-app.use('/api/auth',            authLimiter, authRoutes);
-app.use('/api/jobs-available',  jobPositionAvailableRoutes);
+// Essas publicas para disponibilizar vagas e aceitar candidaturas
+app.use('/api/jobs-available',    jobPositionAvailableRoutes);
+app.use('/api/job-applications',  jobApplicationRoutes);
 
+// Recomendação para que essas rotas sejam privadas, acessiveis dentro de uma intranet, apenas para colaboradores
+app.use('/api/csrf-token',        csrfRoutes);
+app.use('/api/auth',              authLimiter, authRoutes);
 app.use('/api/users',             authMiddleware, userRoutes);
+// controle interno de quantos cadidatos
 app.use('/api/candidates',        authMiddleware, candidateRoutes);
 app.use('/api/departments',       authMiddleware, departmentRoutes);
 app.use('/api/jobs-services',     authMiddleware, jobPositionRoutes);
-app.use('/api/job-applications',  authMiddleware, jobApplicationRoutes);
 app.use('/api/internal-profiles', authMiddleware, internalProfileRoutes);
 
 app.use(errorHandler);
