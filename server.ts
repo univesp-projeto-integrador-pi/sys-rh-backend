@@ -32,19 +32,19 @@ app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Essas publicas para disponibilizar vagas e aceitar candidaturas
-app.use('/api/candidates-external',         candidateExternalRoutes);
-app.use('/api/jobs-available',              jobPositionAvailableRoutes);
+app.use('/api/v1/candidates-external',         candidateExternalRoutes);
+app.use('/api/v1/jobs-available',              jobPositionAvailableRoutes);
 
 
 // Recomendação para que essas rotas sejam privadas, acessiveis dentro de uma intranet, apenas para colaboradores
-app.use('/api/csrf-token',           csrfRoutes);
-app.use('/api/auth',                 authLimiter, authRoutes);
-app.use('/api/users',                authMiddleware, userRoutes);
-app.use('/api/departments',          authMiddleware, departmentRoutes);
-app.use('/api/jobs-services',        authMiddleware, jobPositionRoutes);
-app.use('/api/jobs-applications',    authMiddleware, jobApplicationRoutes);
-app.use('/api/internal-profiles',    authMiddleware, internalProfileRoutes);
-app.use('/api/candidates-internal',  authMiddleware, candidateInternalRoutes);
+app.use('/api/v1/csrf-token',           csrfRoutes);
+app.use('/api/v1/auth',                 authLimiter, authRoutes);
+app.use('/api/v1/users',                authMiddleware, userRoutes);
+app.use('/api/v1/departments',          authMiddleware, departmentRoutes);
+app.use('/api/v1/jobs-services',        authMiddleware, jobPositionRoutes);
+app.use('/api/v1/jobs-applications',    authMiddleware, jobApplicationRoutes);
+app.use('/api/v1/internal-profiles',    authMiddleware, internalProfileRoutes);
+app.use('/api/v1/candidates-internal',  authMiddleware, candidateInternalRoutes);
 
 app.use(errorHandler);
 
