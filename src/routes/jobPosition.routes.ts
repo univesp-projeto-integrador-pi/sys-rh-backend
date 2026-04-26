@@ -8,31 +8,6 @@ const router = Router();
 
 /**
  * @swagger
- * tags:
- *   name: Jobs
- *   description: Gestão de vagas
- */
-
-/**
- * @swagger
- * /api/jobs/open:
- *   get:
- *     summary: Lista todas as vagas abertas (público)
- *     tags: [Jobs]
- *     responses:
- *       200:
- *         description: Lista de vagas abertas
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/JobPosition'
- */
-router.get('/open', jobPositionController.findAllOpen.bind(jobPositionController));
-
-/**
- * @swagger
  * /api/jobs:
  *   get:
  *     summary: Lista todas as vagas
