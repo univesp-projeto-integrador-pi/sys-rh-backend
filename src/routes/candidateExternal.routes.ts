@@ -1,9 +1,8 @@
 import { Router } from 'express';
-import candidateController from '../controllers/candidate.controller';
 import resumeController from '../controllers/resume.controller';
 import { validate } from '../middlewares/validate.middleware';
 import { createCandidateSchema, updateCandidateSchema } from '../validators/candidate.validator';
-import { requireRole } from '../middlewares/role.middleware';
+import candidateExternalController from '../controllers/candidateExternal.controller';
 
 const router = Router();
 
@@ -13,57 +12,6 @@ const router = Router();
  *   name: Candidates
  *   description: Gestão de candidatos
  */
-
-/**
- * @swagger
- * /api/candidates:
- *   get:
- *     summary: Lista todos os candidatos
- *     tags: [Candidates]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Lista de candidatos
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Candidate'
- */
-router.get('/', candidateController.findAll.bind(candidateController));
-
-/**
- * @swagger
- * /api/candidates/{id}:
- *   get:
- *     summary: Busca candidato por ID
- *     tags: [Candidates]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *     responses:
- *       200:
- *         description: Candidato encontrado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Candidate'
- *       404:
- *         description: Candidato não encontrado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
- */
-router.get('/:id', candidateController.findById.bind(candidateController));
 
 /**
  * @swagger
@@ -91,7 +39,7 @@ router.get('/:id', candidateController.findById.bind(candidateController));
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', validate(createCandidateSchema), candidateController.create.bind(candidateController));
+router.post('/', validate(createCandidateSchema), candidateExternalController.create.bind(candidateExternalController));
 
 /**
  * @swagger
@@ -127,7 +75,7 @@ router.post('/', validate(createCandidateSchema), candidateController.create.bin
  *       404:
  *         description: Candidato não encontrado
  */
-router.put('/:id', requireRole('ADMIN', 'RECRUITER'), validate(updateCandidateSchema), candidateController.update.bind(candidateController));
+router.put('/:id', validate(updateCandidateSchema), candidateExternalController.update.bind(candidateExternalController));
 
 /**
  * @swagger
@@ -152,7 +100,7 @@ router.put('/:id', requireRole('ADMIN', 'RECRUITER'), validate(updateCandidateSc
  *       404:
  *         description: Candidato não encontrado
  */
-router.delete('/:id', requireRole('ADMIN'), candidateController.delete.bind(candidateController));
+router.delete('/:id', candidateExternalController.delete.bind(candidateExternalController));
 
 /**
  * @swagger
@@ -233,6 +181,6 @@ router.post('/:candidateId/resume', resumeController.create.bind(resumeControlle
  *       404:
  *         description: Currículo não encontrado
  */
-router.put('/:candidateId/resume', requireRole('ADMIN', 'RECRUITER'), resumeController.update.bind(resumeController));
+router.put('/:candidateId/resume', resumeController.update.bind(resumeController));
 
 export default router;

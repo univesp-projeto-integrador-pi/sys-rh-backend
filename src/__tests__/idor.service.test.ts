@@ -10,7 +10,7 @@ const mockAuthor = {
   id: 'author-1',
   name: 'Recrutador A',
   email: 'a@empresa.com',
-  password: 'hash',
+  hashPassword: 'hash',
   role: 'RECRUITER' as any,
   createdAt: new Date(),
   updatedAt: new Date(),

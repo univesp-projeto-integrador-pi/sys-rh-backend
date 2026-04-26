@@ -78,7 +78,11 @@ class CandidateService {
    * @throws AppError 404 - Candidato não encontrado
    */
   async update(id: string, data: UpdateCandidateDTO) {
-    await this.findById(id);
+    const currentCandidate = await this.findById(id);
+    if (data.email && data.email !== currentCandidate.email) {
+      const emailExists = await candidateRepository.findByEmail(data.email);
+      if (emailExists) throw new AppError('Este e-mail já está sendo utilizado por outro candidato', 409);
+    }
     return candidateRepository.update(id, data);
   }
 

@@ -2,7 +2,7 @@
 
 [![Node Version](https://img.shields.io/badge/node-%3E%3D22.14.0-brightgreen)](https://nodejs.org/)
 [![Express Version](https://img.shields.io/badge/express-%3E%3D5.0.0-green)](https://expressjs.com/)
-[![Prisma Version](https://img.shields.io/badge/prisma-%3E%3D7.7.0-magenta)](https://www.prisma.io/)
+[![Prisma Version](https://img.shields.io/badge/prisma-%3E%3D7.8.0-magenta)](https://www.prisma.io/)
 [![Docker](https://img.shields.io/badge/docker-supported-blue)](https://www.docker.com/)
 
 ## 📋 Pré-requisitos

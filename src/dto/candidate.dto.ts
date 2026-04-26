@@ -7,6 +7,7 @@ export interface CreateCandidateDTO {
 
 export interface UpdateCandidateDTO {
   fullName?: string;
+  email: string;
   phone?: string;
 }
 
