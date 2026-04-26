@@ -93,9 +93,6 @@ class JobApplicationService {
     return jobApplicationRepository.create(data);
   }
 
-  // TODO: esse método de update aqui acho que deveria ser do RH, 
-  // TODO: porque envolve etapas de atualizar a atual situação do candidato, no sentido de avançar
-
   /**
    * Avança a etapa da candidatura no funil de seleção.
    *
