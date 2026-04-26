@@ -127,7 +127,7 @@ class AuthService {
     const user = await userRepository.findByEmail(data.email);
     if (!user) throw new AppError('Credenciais inválidas', 401);
 
-    const passwordMatch = await bcrypt.compare(data.password, user.password);
+    const passwordMatch = await bcrypt.compare(data.password, user.hashPassword);
     if (!passwordMatch) throw new AppError('Credenciais inválidas', 401);
 
     const payload: AccessTokenPayload = {

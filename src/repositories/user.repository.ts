@@ -25,7 +25,14 @@ class UserRepository {
   }
 
   create(data: CreateUserDTO) {
-    return prisma.user.create({ data, select: userPublicSelect });
+    return prisma.user.create({
+      data: {
+        name: data.name,
+        email: data.email,
+        hashPassword: data.password,
+      },
+      select: userPublicSelect
+    });
   }
 
   update(id: string, data: UpdateUserDTO) {

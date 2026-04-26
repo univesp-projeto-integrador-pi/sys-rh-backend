@@ -8,5 +8,6 @@ export const createCandidateSchema = z.object({
 
 export const updateCandidateSchema = z.object({
   fullName: z.string().min(2).optional(),
+  email:    z.email('Email inválido'),
   phone:    z.string().regex(/^\d{10,11}$/).optional(),
 });

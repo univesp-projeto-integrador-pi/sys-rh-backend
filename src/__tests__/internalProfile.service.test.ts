@@ -29,6 +29,7 @@ const mockProfile = {
   terminationNotes: null,
   candidateId: 'candidate-1',
   departmentId: 'dept-1',
+  userId: 'user-1',
   managerId: null,
   createdAt: new Date(),
   updatedAt: new Date(),
