@@ -63,6 +63,20 @@ class CandidateService {
     const existing = await candidateRepository.findByEmail(data.email);
     if (existing) throw new AppError('Você já possui um perfil de candidato cadastrado.', 409);
     
+    // VERIFICAÇÃO À PROVA DE BALAS:
+    // Checa se 'education' existe, se é um objeto e se tem a instituição (mesmo que vazia)
+    const hasEducationData = !!(
+      data.education && 
+      typeof data.education === 'object' && 
+      (data.education.institution || data.education.degree)
+    );
+
+    if (hasEducationData) {
+      console.log("✅ [SERVICE] Rota detectada: createWithEducation()");
+      return candidateRepository.createWithEducation(data);
+    }
+
+    console.log("⚠️ [SERVICE] Rota detectada: create() simples (sem educação)");
     return candidateRepository.create(data);
   }
 

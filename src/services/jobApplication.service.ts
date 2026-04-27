@@ -1,5 +1,4 @@
 import jobApplicationRepository from '../repositories/jobApplication.repository';
-import candidateRepository from '../repositories/candidate.repository';
 import jobPositionRepository from '../repositories/jobPosition.repository';
 import internalNoteService from './internalNote.service';
 import internalProfileService from './internalProfile.service';
