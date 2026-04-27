@@ -16,6 +16,7 @@ import csrfRoutes from './src/routes/csrf.routes';
 import helmet from 'helmet';
 import internalProfileRoutes from './src/routes/internalProfile.routes';
 import candidateInternalRoutes from './src/routes/candidateInternal.routes';
+import resumeRoutes from './src/routes/resume.routes';
 
 const app = express();
 
@@ -32,6 +33,7 @@ app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Essas publicas para disponibilizar vagas e aceitar candidaturas
+app.use('/api/v1/resume',                      resumeRoutes);
 app.use('/api/v1/candidates-external',         candidateExternalRoutes);
 app.use('/api/v1/jobs-available',              jobPositionAvailableRoutes);
 
