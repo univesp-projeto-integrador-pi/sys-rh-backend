@@ -10,35 +10,47 @@ class CandidateController {
     } catch (error) { next(error); }
   }
 
-  // 🚀 NOVO: Retorna o perfil do usuário logado no momento
+  async getMe(req: Request, res: Response, next: NextFunction) {
+    try {
+      const email = req.email; 
+      if (!email) throw new AppError('Não autenticado', 401);
 
-async getMe(req: Request, res: Response, next: NextFunction) {
-  try {
-    // Mudamos de req.user?.email para req.email
-    const email = req.email; 
-    if (!email) throw new AppError('Não autenticado', 401);
+      const candidate = await candidateService.findByEmail(email);
+      if (!candidate) throw new AppError('Perfil de candidato não encontrado', 404);
+      
+      res.json(candidate);
+    } catch (error) { next(error); }
+  }
 
-    const candidate = await candidateService.findByEmail(email);
-    if (!candidate) throw new AppError('Perfil de candidato não encontrado', 404);
-    
-    res.json(candidate);
-  } catch (error) { next(error); }
-}
+  async create(req: Request, res: Response, next: NextFunction) {
+    try {
+      console.log("-------------------------------------------------");
+      console.log("📥 [CONTROLLER] Requisição POST /api/candidates iniciada.");
+      
+      const userEmail = req.email;
+      if (!userEmail) throw new AppError('Sessão inválida', 401);
 
-// --- MÉTODO CREATE ATUALIZADO ---
-async create(req: Request, res: Response, next: NextFunction) {
-  try {
-    // Mudamos de req.user?.email para req.email
-    const userEmail = req.email;
-    if (!userEmail) throw new AppError('Sessão inválida', 401);
+      console.log("📥 [CONTROLLER] E-mail autenticado:", userEmail);
+      console.log("📥 [CONTROLLER] Corpo da requisição (req.body):", JSON.stringify(req.body, null, 2));
 
-    // O restante continua igual
-    const candidateData = { ...req.body, email: userEmail };
-    
-    const candidate = await candidateService.create(candidateData);
-    res.status(201).json(candidate);
-  } catch (error) { next(error); }
-}
+      // Montamos o payload
+      const candidateData = { 
+        ...req.body, 
+        email: userEmail 
+      };
+      
+      console.log("📥 [CONTROLLER] Enviando para o Service:", JSON.stringify(candidateData, null, 2));
+
+      const candidate = await candidateService.create(candidateData);
+      
+      console.log("✅ [CONTROLLER] Sucesso! Retornando 201.");
+      console.log("-------------------------------------------------");
+      res.status(201).json(candidate);
+    } catch (error) { 
+      console.error("❌ [CONTROLLER] Erro capturado:", error);
+      next(error); 
+    }
+  }
 
   async findById(req: Request, res: Response, next: NextFunction) {
     try {

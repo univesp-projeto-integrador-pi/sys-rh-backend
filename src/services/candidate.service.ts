@@ -13,15 +13,34 @@ class CandidateService {
     return candidate;
   }
 
-  // 🚀 NOVO: Busca por e-mail para apoiar o Controller
   async findByEmail(email: string) {
-    return candidateRepository.findByEmail(email);
-  }
+  const candidate = await candidateRepository.findByEmail(email);
+  return candidate; // Se não existir, retorna null. O Controller cuidará do 404.
+}
 
-  async create(data: CreateCandidateDTO) {
+  async create(data: any) {
+    // 🔍 LOG DE INSPEÇÃO PROFUNDA
+    console.log("-------------------------------------------------");
+    console.log("⚙️ [SERVICE] Chaves recebidas no objeto 'data':", Object.keys(data));
+    console.log("⚙️ [SERVICE] Conteúdo bruto de 'education':", data.education);
+
     const existing = await candidateRepository.findByEmail(data.email);
     if (existing) throw new AppError('Você já possui um perfil de candidato cadastrado.', 409);
     
+    // VERIFICAÇÃO À PROVA DE BALAS:
+    // Checa se 'education' existe, se é um objeto e se tem a instituição (mesmo que vazia)
+    const hasEducationData = !!(
+      data.education && 
+      typeof data.education === 'object' && 
+      (data.education.institution || data.education.degree)
+    );
+
+    if (hasEducationData) {
+      console.log("✅ [SERVICE] Rota detectada: createWithEducation()");
+      return candidateRepository.createWithEducation(data);
+    }
+
+    console.log("⚠️ [SERVICE] Rota detectada: create() simples (sem educação)");
     return candidateRepository.create(data);
   }
 
