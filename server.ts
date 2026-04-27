@@ -8,43 +8,37 @@ import { authMiddleware } from './src/middlewares/auth.middleware';
 import authRoutes from './src/routes/auth.routes';
 import userRoutes from './src/routes/user.routes';
 import departmentRoutes from './src/routes/department.routes';
-import candidateExternalRoutes from './src/routes/candidateExternal.routes';
+import candidateRoutes from './src/routes/candidate.routes';
 import jobPositionRoutes from './src/routes/jobPosition.routes';
-import jobPositionAvailableRoutes from './src/routes/jobPositionAvailable.routes';
 import jobApplicationRoutes from './src/routes/jobApplication.routes';
 import csrfRoutes from './src/routes/csrf.routes';
 import helmet from 'helmet';
-import internalProfileRoutes from './src/routes/internalProfile.routes';
-import candidateInternalRoutes from './src/routes/candidateInternal.routes';
 
 const app = express();
 
 app.use(helmet());
+// Mantenha apenas UMA declaração de CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
   credentials: true,
 }));
-app.use(globalLimiter);
 
 app.use(express.json());
-app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
+app.use(globalLimiter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Essas publicas para disponibilizar vagas e aceitar candidaturas
-app.use('/api/v1/candidates-external',         candidateExternalRoutes);
-app.use('/api/v1/jobs-available',              jobPositionAvailableRoutes);
+// ROTAS PÚBLICAS (Ou que controlam o próprio auth dentro do arquivo de rotas)
+app.use('/api/csrf-token', csrfRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
+app.use('/api/jobs', jobPositionRoutes);
 
-
-// Recomendação para que essas rotas sejam privadas, acessiveis dentro de uma intranet, apenas para colaboradores
-app.use('/api/v1/csrf-token',           csrfRoutes);
-app.use('/api/v1/auth',                 authLimiter, authRoutes);
-app.use('/api/v1/users',                authMiddleware, userRoutes);
-app.use('/api/v1/departments',          authMiddleware, departmentRoutes);
-app.use('/api/v1/jobs-services',        authMiddleware, jobPositionRoutes);
-app.use('/api/v1/jobs-applications',    authMiddleware, jobApplicationRoutes);
-app.use('/api/v1/internal-profiles',    authMiddleware, internalProfileRoutes);
-app.use('/api/v1/candidates-internal',  authMiddleware, candidateInternalRoutes);
+// ROTAS QUE EXIGEM LOGIN (O middleware pode ser global aqui ou dentro de cada router)
+// Sugestão: Deixe o middleware no server.ts para o que for 100% privado
+app.use('/api/users', authMiddleware, userRoutes);
+app.use('/api/departments', authMiddleware, departmentRoutes);
+app.use('/api/candidates', candidateRoutes); // O middleware já está dentro do candidateRoutes
+app.use('/api/job-applications', authMiddleware, jobApplicationRoutes); // ✅ ADICIONE O authMiddleware AQUI
 
 app.use(errorHandler);
 

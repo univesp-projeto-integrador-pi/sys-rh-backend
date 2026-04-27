@@ -8,7 +8,7 @@ const router = Router();
 
 const createUserSchema = z.object({
   name:     z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
-  email:    z.email('Email inválido'),
+  email:    z.string().email('Email inválido'),
   password: z.string()
     .min(8, 'Senha deve ter ao menos 8 caracteres')
     .regex(/[A-Z]/, 'Deve conter ao menos uma letra maiúscula')

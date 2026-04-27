@@ -2,7 +2,7 @@
 
 [![Node Version](https://img.shields.io/badge/node-%3E%3D22.14.0-brightgreen)](https://nodejs.org/)
 [![Express Version](https://img.shields.io/badge/express-%3E%3D5.0.0-green)](https://expressjs.com/)
-[![Prisma Version](https://img.shields.io/badge/prisma-%3E%3D7.8.0-magenta)](https://www.prisma.io/)
+[![Prisma Version](https://img.shields.io/badge/prisma-%3E%3D7.7.0-magenta)](https://www.prisma.io/)
 [![Docker](https://img.shields.io/badge/docker-supported-blue)](https://www.docker.com/)
 
 ## 📋 Pré-requisitos
@@ -122,13 +122,11 @@ Candidate ──┤              │
 ├── package.json          # Dependências e scripts
 └── README.md             # Documentação
 ```
-### [Guide](/docs/GUIDE.md)
-### [Visão extensa do sistema](/docs/COMPLETE_USER_GUIDE.md)
-### [Examples of requests](/docs/EXAMPLES_OF_REQUESTS.md)
-### [Guia de Sobrevivência](/docs/IMPORTANT_TERMS.md)
-### [Breve descrição sobre API](/docs/BRIEF_DESCRIPTION.md)
-### [Sugestão de acompanhamento](/docs/SUGESTION_FLOW.md)
-### [Problemas iniciais encontrados](/docs/PROBLEMAS_PARA_RESOLVER.md)
+### [Guide](GUIDE.md)
+### [Examples of requests](/EXAMPLES_OF_REQUESTS.md)
+### [Guia de Sobrevivência](/IMPORTANT_TERMS.md)
+### [Breve descrição sobre API](/BRIEF_DESCRIPTION.md)
+### [Sugestão de acompanhamento](/SUGESTION_FLOW.md)
 ---
 
 **Desenvolvido por [Univesp Projeto Integrador](https://github.com/univesp-projeto-integrador-pi)** 👨‍💻

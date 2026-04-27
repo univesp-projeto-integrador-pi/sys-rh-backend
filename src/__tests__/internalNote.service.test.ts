@@ -15,7 +15,7 @@ const mockUser = {
   id: 'user-1',
   name: 'Recrutador',
   email: 'recrutador@empresa.com',
-  hashPassword: 'hashed-password',
+  password: 'hashed-password',
   role: 'RECRUITER' as any,   
   createdAt: new Date(),
   updatedAt: new Date(),

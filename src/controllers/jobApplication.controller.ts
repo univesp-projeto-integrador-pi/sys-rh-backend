@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import jobApplicationService from '../services/jobApplication.service';
+import { AppError } from '../middlewares/errorHandler.middleware';
 
 class JobApplicationController {
   async findAll(_req: Request, res: Response, next: NextFunction) {
@@ -27,9 +28,30 @@ class JobApplicationController {
 
   async create(req: Request, res: Response, next: NextFunction) {
     try {
-      const application = await jobApplicationService.create(req.body);
+      const userId = req.userId; 
+      const userEmail = req.email; // Pegamos o e-mail injetado pelo authMiddleware
+      const { positionId } = req.body;
+
+      console.log(`[Controller] Iniciando candidatura - User: ${userEmail}, Vaga: ${positionId}`);
+
+      if (!userId || !userEmail) {
+        throw new AppError('Usuário não autenticado ou sessão incompleta', 401);
+      }
+
+      if (!positionId) {
+        throw new AppError('ID da vaga não fornecido', 400);
+      }
+
+      // CORREÇÃO: Passando os dois argumentos separadamente como o Service espera
+      const application = await jobApplicationService.create(positionId, userEmail);
+
+      console.log("[Controller] Candidatura criada com sucesso!");
       res.status(201).json(application);
-    } catch (error) { next(error); }
+      
+    } catch (error: any) { 
+      console.error("[Controller Error]:", error.message);
+      next(error); 
+    }
   }
 
   async updateStage(req: Request, res: Response, next: NextFunction) {
