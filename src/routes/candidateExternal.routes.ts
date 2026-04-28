@@ -8,14 +8,7 @@ const router = Router();
 
 /**
  * @swagger
- * tags:
- *   name: Candidates
- *   description: Gestão de candidatos
- */
-
-/**
- * @swagger
- * /api/candidates:
+ * /api/v1/candidates-external:
  *   post:
  *     summary: Cadastrar novo candidato (público)
  *     tags: [Candidates]
@@ -28,27 +21,38 @@ const router = Router();
  *     responses:
  *       201:
  *         description: Candidato criado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Candidate'
  *       409:
  *         description: Email já cadastrado
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
  */
 router.post('/', validate(createCandidateSchema), candidateExternalController.create.bind(candidateExternalController));
 
 /**
  * @swagger
- * /api/candidates/{id}:
- *   put:
- *     summary: Atualizar candidato
+ * /api/v1/candidates-external/{id}:
+ *   get:
+ *     summary: Visualiza o próprio perfil
  *     tags: [Candidates]
- *     security:
- *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Candidato encontrado
+ *       404:
+ *         description: Candidato não encontrado
+ */
+router.get('/:id', candidateExternalController.findById.bind(candidateExternalController));
+
+/**
+ * @swagger
+ * /api/v1/candidates-external/{id}:
+ *   put:
+ *     summary: Atualiza o próprio perfil
+ *     tags: [Candidates]
  *     parameters:
  *       - in: path
  *         name: id
@@ -61,17 +65,10 @@ router.post('/', validate(createCandidateSchema), candidateExternalController.cr
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             properties:
- *               fullName:
- *                 type: string
- *               phone:
- *                 type: string
+ *             $ref: '#/components/schemas/UpdateCandidateDTO'
  *     responses:
  *       200:
  *         description: Candidato atualizado
- *       403:
- *         description: Acesso negado
  *       404:
  *         description: Candidato não encontrado
  */
@@ -79,12 +76,10 @@ router.put('/:id', validate(updateCandidateSchema), candidateExternalController.
 
 /**
  * @swagger
- * /api/candidates/{id}:
+ * /api/v1/candidates-external/{id}:
  *   delete:
- *     summary: Remover candidato (soft delete)
+ *     summary: Remove o próprio cadastro
  *     tags: [Candidates]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -95,8 +90,6 @@ router.put('/:id', validate(updateCandidateSchema), candidateExternalController.
  *     responses:
  *       204:
  *         description: Candidato removido
- *       403:
- *         description: Acesso negado
  *       404:
  *         description: Candidato não encontrado
  */
@@ -104,32 +97,9 @@ router.delete('/:id', candidateExternalController.delete.bind(candidateExternalC
 
 /**
  * @swagger
- * /api/candidates/{candidateId}/resume:
- *   get:
- *     summary: Busca currículo do candidato
- *     tags: [Candidates]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: candidateId
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *     responses:
- *       200:
- *         description: Currículo encontrado
- *       404:
- *         description: Currículo não encontrado
- */
-router.get('/:candidateId/resume', resumeController.findByCandidateId.bind(resumeController));
-
-/**
- * @swagger
- * /api/candidates/{candidateId}/resume:
+ * /api/v1/candidates-external/{candidateId}/resume:
  *   post:
- *     summary: Criar currículo do candidato (público)
+ *     summary: Envia o próprio currículo
  *     tags: [Candidates]
  *     parameters:
  *       - in: path
@@ -154,12 +124,10 @@ router.post('/:candidateId/resume', resumeController.create.bind(resumeControlle
 
 /**
  * @swagger
- * /api/candidates/{candidateId}/resume:
+ * /api/v1/candidates-external/{candidateId}/resume:
  *   put:
- *     summary: Atualizar currículo do candidato
+ *     summary: Atualiza o próprio currículo
  *     tags: [Candidates]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: candidateId
@@ -176,8 +144,6 @@ router.post('/:candidateId/resume', resumeController.create.bind(resumeControlle
  *     responses:
  *       200:
  *         description: Currículo atualizado
- *       403:
- *         description: Acesso negado
  *       404:
  *         description: Currículo não encontrado
  */

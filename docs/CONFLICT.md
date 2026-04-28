@@ -1,0 +1,6 @@
+- Tiago, das coisas que você subiu, eu mantive a minha versão do server.ts pela questão de versionar as rotas, fiz uma migration que troquei password por hashPassword, e removei alguns warnings do zod porque estava depreciado, atualizei alguns recursos no package.json
+- Em relação aos controller e routes do candidate, e application, inicialmente procurei separar da forma como separei para deixar rotas que não precisam de autenticação e as que precisam separadas por routes e controllers,  em relação aos services, não desmembrei porque não precisava
+- No mais, procurei não alterar sua lógica,  gostaria que você olhasse, no momento fez sentido para mim separar da forma como eu separei os controllers + routes, tanto que acho que resume acredito que possa ficar assim.
+- Sobre a ideia de separar o que são controller+routes publico e privado, acho que o candidate iria sair dando espaço ao externo e internal, assim  como acho que mais controller+routes possam passar por isso
+- Os arquivos *.ts que você adicionou, aparentemente para testar, estão acusando um erro, uma das suas features está se baseado no candidate
+- Sua branch eu não alterei, eu mergeei ela dentro da branch que eu estou mexendo

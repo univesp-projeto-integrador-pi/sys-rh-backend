@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const createJobApplicationSchema = z.object({
   // Removemos o candidateId daqui pois ele será injetado pelo Service 
   // através do e-mail contido no Token JWT.
-  positionId: z.string().uuid('ID de vaga inválido'),
+  positionId: z.uuid('ID de vaga inválido'),
 });
 
 export const updateStageSchema = z.object({
