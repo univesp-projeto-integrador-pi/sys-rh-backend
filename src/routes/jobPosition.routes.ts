@@ -3,8 +3,34 @@ import jobPositionController from '../controllers/jobPosition.controller';
 import { requireRole } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validate.middleware';
 import { createJobPositionSchema, updateJobPositionSchema } from '../validators/jobPosition.validator';
+import { authMiddleware } from '../middlewares/auth.middleware';
 
 const router = Router();
+
+/**
+ * @swagger
+ * tags:
+ *   name: Jobs
+ *   description: Gestão de vagas
+ */
+
+/**
+ * @swagger
+ * /api/jobs/open:
+ *   get:
+ *     summary: Lista todas as vagas abertas (público)
+ *     tags: [Jobs]
+ *     responses:
+ *       200:
+ *         description: Lista de vagas abertas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/JobPosition'
+ */
+router.get('/open', jobPositionController.findAllOpen.bind(jobPositionController));
 
 /**
  * @swagger
@@ -24,7 +50,7 @@ const router = Router();
  *               items:
  *                 $ref: '#/components/schemas/JobPosition'
  */
-router.get('/', jobPositionController.findAll.bind(jobPositionController));
+router.get('/', authMiddleware, jobPositionController.findAll.bind(jobPositionController));
 
 /**
  * @swagger
@@ -89,7 +115,7 @@ router.get('/:id', jobPositionController.findById.bind(jobPositionController));
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.post('/', requireRole('ADMIN', 'RECRUITER'), validate(createJobPositionSchema), jobPositionController.create.bind(jobPositionController));
+router.post('/', authMiddleware, requireRole('ADMIN', 'RECRUITER'), validate(createJobPositionSchema), jobPositionController.create.bind(jobPositionController));
 
 /**
  * @swagger
@@ -128,7 +154,7 @@ router.post('/', requireRole('ADMIN', 'RECRUITER'), validate(createJobPositionSc
  *       404:
  *         description: Vaga não encontrada
  */
-router.put('/:id', requireRole('ADMIN', 'RECRUITER'), validate(updateJobPositionSchema), jobPositionController.update.bind(jobPositionController));
+router.put('/:id', authMiddleware, requireRole('ADMIN', 'RECRUITER'), validate(updateJobPositionSchema), jobPositionController.update.bind(jobPositionController));
 
 /**
  * @swagger
@@ -153,6 +179,6 @@ router.put('/:id', requireRole('ADMIN', 'RECRUITER'), validate(updateJobPosition
  *       404:
  *         description: Vaga não encontrada
  */
-router.delete('/:id', requireRole('ADMIN'), jobPositionController.delete.bind(jobPositionController));
+router.delete('/:id', authMiddleware, requireRole('ADMIN'), jobPositionController.delete.bind(jobPositionController));
 
 export default router;

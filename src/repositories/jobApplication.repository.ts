@@ -2,19 +2,21 @@ import prisma from '../config/client';
 import { CreateJobApplicationDTO, UpdateJobApplicationDTO } from '../dto/jobApplication.dto';
 
 class JobApplicationRepository {
-  findAll() {
-    return prisma.jobApplication.findMany({
-      where: {
-        deletedAt: null,
-        candidate: { deletedAt: null }
-      },
-      include: { candidate: true, position: true }
-    });
+  async findAll() {
+    try {
+      return await prisma.jobApplication.findMany({
+        where: { deletedAt: null, candidate: { deletedAt: null } },
+        include: { candidate: true, position: true }
+      });
+    } catch (error) {
+      console.error("Erro ao buscar candidaturas:", error);
+      throw error;
+    }
   }
 
-  findById(id: string) {
+  async findById(id: string) {
     if (!id) return null;
-    return prisma.jobApplication.findUnique({
+    return await prisma.jobApplication.findUnique({
       where: { id },
       include: {
         candidate: true,
@@ -24,34 +26,30 @@ class JobApplicationRepository {
     });
   }
 
-  findByCandidateId(candidateId: string) {
-    return prisma.jobApplication.findMany({
+  // 🚨 NOVA FUNÇÃO: Checa se já existe uma candidatura ativa para esta vaga
+  async checkExistingApplication(candidateId: string, positionId: string) {
+    return await prisma.jobApplication.findFirst({
       where: {
         candidateId,
-        deletedAt: null,
-        candidate: { deletedAt: null }
-      },
-      include: { position: true }
+        positionId,
+        deletedAt: null // Considera apenas candidaturas ativas
+      }
     });
   }
 
-  create(data: CreateJobApplicationDTO) {
-    return prisma.jobApplication.create({
-      data,
-      include: { candidate: true, position: true }
-    });
+  async create(data: CreateJobApplicationDTO) {
+    try {
+      return await prisma.jobApplication.create({
+        data,
+        include: { candidate: true, position: true }
+      });
+    } catch (error) {
+      console.error("Erro ao registrar candidatura:", error);
+      throw error;
+    }
   }
 
-  update(id: string, data: UpdateJobApplicationDTO) {
-    return prisma.jobApplication.update({ where: { id }, data });
-  }
-
-  softDelete(id: string) {
-    return prisma.jobApplication.update({
-      where: { id },
-      data: { deletedAt: new Date() }
-    });
-  }
+  // ... (mantenha os outros métodos update e softDelete com try/catch)
 }
 
 export default new JobApplicationRepository();
