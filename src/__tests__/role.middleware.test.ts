@@ -80,6 +80,17 @@ describe('RoleMiddleware', () => {
       expect(res.status).toHaveBeenCalledWith(403);
       expect(next).not.toHaveBeenCalled();
     });
+
+    it('deve bloquear USER com 403', () => {
+      const req  = mockReqWithRole('USER');
+      const res  = mockRes();
+      const next = mockNext();
+
+      requireRole('ADMIN', 'RECRUITER')(req as Request, res as Response, next);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(next).not.toHaveBeenCalled();
+    });
   });
 
   describe('sem role no req', () => {
@@ -92,6 +103,18 @@ describe('RoleMiddleware', () => {
 
       expect(res.status).toHaveBeenCalledWith(403);
       expect(next).not.toHaveBeenCalled();
+    });
+
+    it('deve retornar mensagem apropriada quando role está ausente', () => {
+      const req  = mockReqWithRole(undefined);
+      const res  = mockRes();
+      const next = mockNext();
+
+      requireRole('ADMIN')(req as Request, res as Response, next);
+
+      const jsonCall = (res.json as jest.Mock).mock.calls[0][0];
+      expect(jsonCall.message).toContain('permissões');
+      expect(jsonCall.message).toContain('administrador');
     });
   });
 
