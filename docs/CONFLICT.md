@@ -4,3 +4,5 @@
 - Sobre a ideia de separar o que são controller+routes publico e privado, acho que o candidate iria sair dando espaço ao externo e internal, assim  como acho que mais controller+routes possam passar por isso
 - Os arquivos *.ts que você adicionou, aparentemente para testar, estão acusando um erro, uma das suas features está se baseado no candidate
 - Sua branch eu não alterei, eu mergeei ela dentro da branch que eu estou mexendo
+- jobApplication.validator.ts está dando erro no enum
+- Ver como que a sua lógica no controller Candidate pode ser dividida entre os dois controllers e routes
