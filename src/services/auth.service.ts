@@ -37,13 +37,15 @@ class AuthService {
   }
 
   async login(data: LoginDTO) {
+    console.log(`[AuthService] Tentativa de login para: ${data.email}`);
+    
     const user = await userRepository.findByEmail(data.email);
     if (!user) throw new AppError('Credenciais inválidas', 401);
 
     const passwordMatch = await bcrypt.compare(data.password, user.password);
     if (!passwordMatch) throw new AppError('Credenciais inválidas', 401);
 
-    const payload: AccessTokenPayload = { userId: user.id, email: user.email, role: user.role, };
+    const payload: AccessTokenPayload = { userId: user.id, email: user.email, role: user.role };
 
     const accessToken  = this.generateAccessToken(payload);
     const refreshToken = this.generateRefreshToken(payload);
@@ -52,14 +54,16 @@ class AuthService {
     expiresAt.setDate(expiresAt.getDate() + 7);
     await refreshTokenRepository.create(user.id, refreshToken, expiresAt);
 
+    console.log(`[AuthService] Login bem-sucedido. Role: ${user.role}`);
+
     return {
-      accessToken,
+      accessToken, // ⚠️ O Frontend deve salvar isso como 'user_token'
       refreshToken,
       user: { 
         id: user.id, 
         name: user.name, 
         email: user.email, 
-        role: user.role // <--- AQUI ESTÁ A CORREÇÃO!
+        role: user.role 
       }
     };
   }

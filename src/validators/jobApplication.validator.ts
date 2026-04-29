@@ -1,13 +1,26 @@
 import { z } from 'zod';
 
+// Sugestão: Se você tiver um Enum no Prisma, pode usar z.nativeEnum(PrismaEnum)
+// Caso contrário, usamos o z.enum com os valores exatos do banco de dados.
+export const ApplicationStatusEnum = z.enum([
+  'APPLIED', 
+  'SCREENING', 
+  'INTERVIEW', 
+  'OFFER', 
+  'HIRED', 
+  'REJECTED'
+]);
+
 export const createJobApplicationSchema = z.object({
-  // Removemos o candidateId daqui pois ele será injetado pelo Service 
-  // através do e-mail contido no Token JWT.
-  positionId: z.string().uuid('ID de vaga inválido'),
+  body: z.object({
+    positionId: z.string().uuid('ID de vaga inválido'),
+    // Caso precise enviar o status na criação
+    status: ApplicationStatusEnum.optional().default('APPLIED'),
+  }),
 });
 
 export const updateStageSchema = z.object({
-  currentStage: z.enum(['APPLIED', 'SCREENING', 'INTERVIEW', 'OFFER', 'HIRED', 'REJECTED'], {
-    errorMap: () => ({ message: "Etapa da candidatura inválida" })
-  }),
+  body: z.object({
+    currentStage: ApplicationStatusEnum,
+  }).strict(), // .strict() impede campos extras não mapeados
 });

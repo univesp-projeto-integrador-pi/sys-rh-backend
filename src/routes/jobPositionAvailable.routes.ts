@@ -7,12 +7,12 @@ const router = Router();
  * @swagger
  * tags:
  *   name: Jobs
- *   description: Gestão de vagas
+ *   description: Gestão de vagas para candidatos (Público)
  */
 
 /**
  * @swagger
- * /api/jobs/open:
+ * /api/v1/jobs-available/open:
  *   get:
  *     summary: Lista todas as vagas abertas (público)
  *     tags: [Jobs]
