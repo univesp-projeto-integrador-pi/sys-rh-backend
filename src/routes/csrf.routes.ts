@@ -1,28 +1,39 @@
-import { Router, Request, Response } from 'express';
-import { generateCsrfToken } from '../config/csrf';
+import { Router } from "express";
+import { doubleCsrf } from "csrf-csrf";
+
+const { generateCsrfToken, doubleCsrfProtection } = doubleCsrf({
+  getSecret: () => process.env.CSRF_SECRET!,
+
+  getSessionIdentifier: (req: any) => {
+    return req.user?.id || req.ip || "anonymous";
+  },
+
+  cookieName: "csrf-token",
+
+  cookieOptions: {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: false,
+  },
+
+  size: 64,
+
+  // ✅ nome correto
+  getCsrfTokenFromRequest: (req) => {
+    return req.headers["x-csrf-token"] as string;
+  },
+});
 
 const router = Router();
 
-/**
- * @swagger
- * /api/csrf-token:
- *   get:
- *     summary: Retorna o token CSRF para uso nas requisições
- *     tags: [Auth]
- *     responses:
- *       200:
- *         description: Token CSRF gerado
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 csrfToken:
- *                   type: string
- */
-router.get('/', (req: Request, res: Response) => {
-  const csrfToken = generateCsrfToken(req, res);
-  res.json({ csrfToken });
+router.get("/", (req, res) => {
+  const token = generateCsrfToken(req, res);
+  res.json({ csrfToken: token });
 });
 
+router.post("/protected", doubleCsrfProtection, (req, res) => {
+  res.json({ message: "CSRF válido ✅" });
+});
+
+export { doubleCsrfProtection };
 export default router;
