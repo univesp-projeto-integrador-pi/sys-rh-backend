@@ -24,14 +24,18 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     // Verifica o token
     const payload = jwt.verify(token, secret) as AccessTokenPayload;
 
-    // 🚀 A CORREÇÃO: Injetar dentro de req.user para o Controller encontrar
-    // Usamos 'any' aqui para evitar erros de tipagem rápida, 
-    // ou você pode estender a interface Request do Express.
-    (req as any).user = {
+    // Injetar os dados de usuário no req em dois formatos:
+    // - req.userId / req.email / req.role vem do tipo estendido em src/types/express.d.ts
+    // - req.user mantém compatibilidade com outros controladores existentes
+    const request = req as any;
+    request.user = {
       id: payload.userId,
       email: payload.email,
-      role: payload.role
+      role: payload.role,
     };
+    request.userId = payload.userId;
+    request.email = payload.email;
+    request.role = payload.role;
 
     console.log(`[AuthMiddleware] ✅ Token válido para: ${payload.email}`);
     next();

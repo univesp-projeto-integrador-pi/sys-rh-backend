@@ -6,7 +6,6 @@ import { createCandidateSchema, updateCandidateSchema } from '../validators/cand
 
 const router = Router();
 
-// Mude o .bind() por isso:
 router.get('/me', authMiddleware, (req, res, next) => candidateExternalController.getMe(req, res, next));
 
 router.post('/', authMiddleware, validate(createCandidateSchema), (req, res, next) => candidateExternalController.create(req, res, next));

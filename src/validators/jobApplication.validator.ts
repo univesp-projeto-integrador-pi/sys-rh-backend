@@ -12,15 +12,11 @@ export const ApplicationStatusEnum = z.enum([
 ]);
 
 export const createJobApplicationSchema = z.object({
-  body: z.object({
-    positionId: z.string().uuid('ID de vaga inválido'),
-    // Caso precise enviar o status na criação
-    status: ApplicationStatusEnum.optional().default('APPLIED'),
-  }),
+  positionId: z.string().uuid('ID de vaga inválido'),
+  // Caso precise enviar o status na criação
+  status: ApplicationStatusEnum.optional().default('APPLIED'),
 });
 
 export const updateStageSchema = z.object({
-  body: z.object({
-    currentStage: ApplicationStatusEnum,
-  }).strict(), // .strict() impede campos extras não mapeados
-});
+  currentStage: ApplicationStatusEnum,
+}).strict(); // .strict() impede campos extras não mapeados
