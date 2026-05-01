@@ -13,14 +13,33 @@ enum UserRole {
   VIEWER
 }
 
+enum EmploymentStatus {
+  ACTIVE
+  ON_LEAVE
+  RESIGNED
+  TERMINATED
+}
+
+enum TerminationReason {
+  RESIGNATION
+  DISMISSAL_WITH_CAUSE
+  DISMISSAL_WITHOUT_CAUSE
+  END_OF_CONTRACT
+  MUTUAL_AGREEMENT
+  RETIREMENT
+  OTHER
+}
+
 model User {
   id           String    @id @default(uuid())
   name         String
   email        String    @unique
-  password     String
-  role         UserRole      @default(USER)
+  hashPassword     String
+  role         UserRole  @default(USER)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+
+  internalProfile InternalProfile?
 
   notes         InternalNote[]
   refreshTokens RefreshToken[]
@@ -151,6 +170,8 @@ model JobApplication {
   candidate    Candidate        @relation(fields: [candidateId], references: [id])
   position     JobPosition      @relation(fields: [positionId], references: [id])
 
+  @@unique([candidateId, positionId])
+  @@index([currentStage])
   @@map("job_applications")
 }
 
@@ -175,11 +196,22 @@ model InternalProfile {
   updatedAt       DateTime          @updatedAt
   candidateId     String            @unique
   departmentId    String
+  userId          String?           @unique
+  user            User?             @relation(fields: [userId], references: [id])
   managerId       String?
-  candidate       Candidate         @relation(fields: [candidateId], references: [id])
-  department      Department        @relation(fields: [departmentId], references: [id])
   manager         InternalProfile?  @relation("ManagerSubordinates", fields: [managerId], references: [id])
   subordinates    InternalProfile[] @relation("ManagerSubordinates")
+
+  status              EmploymentStatus  @default(ACTIVE)
+  terminatedAt        DateTime?
+  terminationReason   TerminationReason?
+  terminationNotes    String?
+
+  candidate       Candidate         @relation(fields: [candidateId], references: [id])
+  department      Department        @relation(fields: [departmentId], references: [id])
+
+  @@index([status])
+  @@index([terminatedAt])
 
   @@map("internal_profiles")
 }

@@ -3,6 +3,8 @@ import jobApplicationService from '../services/jobApplication.service';
 import { AppError } from '../middlewares/errorHandler.middleware';
 
 class JobApplicationController {
+
+  //privado
   async findAll(_req: Request, res: Response, next: NextFunction) {
     try {
       const applications = await jobApplicationService.findAll();
@@ -10,6 +12,7 @@ class JobApplicationController {
     } catch (error) { next(error); }
   }
 
+  //publico
   async findById(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params as { id: string };
@@ -18,6 +21,7 @@ class JobApplicationController {
     } catch (error) { next(error); }
   }
 
+  // qual??
   async findByCandidateId(req: Request, res: Response, next: NextFunction) {
     try {
       const { candidateId } = req.params as { candidateId: string };
@@ -26,6 +30,7 @@ class JobApplicationController {
     } catch (error) { next(error); }
   }
 
+  //publico
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const userId = req.userId; 
@@ -54,6 +59,7 @@ class JobApplicationController {
     }
   }
 
+  //privado
   async updateStage(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params as { id: string };
@@ -63,6 +69,7 @@ class JobApplicationController {
     } catch (error) { next(error); }
   }
   
+  //publico
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params as { id: string };

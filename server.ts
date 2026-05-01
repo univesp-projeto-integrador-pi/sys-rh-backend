@@ -39,10 +39,11 @@ app.use(cors({
   },
   credentials: true,
 }));
+app.use(globalLimiter);
 
 app.use(helmet());
 app.use(express.json());
-app.use(globalLimiter);
+//app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }));
 
 // 3. Documentação
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

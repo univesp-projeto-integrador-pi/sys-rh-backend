@@ -18,7 +18,7 @@ export interface CreateEducationDTO {
 
 export interface CreateResumeDTO {
   summary?: string;
-  fileUrl?: string;
+  fileUrl?: string;//ainda sem suporte real para essa funcionalidade
   skillIds: string[];
   experiences: CreateProfessionalExperienceDTO[];
   educations: CreateEducationDTO[];
@@ -26,7 +26,7 @@ export interface CreateResumeDTO {
 
 export interface UpdateResumeDTO {
   summary?: string;
-  fileUrl?: string;
+  fileUrl?: string;//ainda sem suporte real para essa funcionalidade
   skillIds?: string[];
   experiences?: CreateProfessionalExperienceDTO[];
   educations?: CreateEducationDTO[];
@@ -35,7 +35,7 @@ export interface UpdateResumeDTO {
 export interface ResumeResponseDTO {
   id: string;
   summary: string | null;
-  fileUrl: string | null;
+  fileUrl: string | null;//ainda sem suporte real para essa funcionalidade
   createdAt: Date;
   skills: {
     id: string;
