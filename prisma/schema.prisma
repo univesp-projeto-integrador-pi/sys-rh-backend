@@ -31,13 +31,13 @@ enum TerminationReason {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  name         String
-  email        String    @unique
+  id               String    @id @default(uuid())
+  name             String
+  email            String    @unique
   hashPassword     String
-  role         UserRole  @default(USER)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  role             UserRole  @default(USER)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime? @updatedAt
 
   internalProfile InternalProfile?
 
@@ -82,7 +82,7 @@ model Candidate {
   email           String           @unique
   phone           String?
   createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  updatedAt       DateTime?        @updatedAt
   deletedAt       DateTime?
   internalProfile InternalProfile?
   applications    JobApplication[]
@@ -97,7 +97,7 @@ model Resume {
   fileUrl     String?
   rawText     String?
   createdAt   DateTime                 @default(now())
-  updatedAt   DateTime                 @updatedAt
+  updatedAt   DateTime?                @updatedAt
   candidateId String                   @unique
   educations  Education[]
   experiences ProfessionalExperience[]
@@ -150,7 +150,7 @@ model JobPosition {
   description  String?
   status       JobStatus        @default(OPEN)
   createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  updatedAt    DateTime?        @updatedAt
   departmentId String
   applications JobApplication[]
   department   Department       @relation(fields: [departmentId], references: [id])
@@ -162,7 +162,7 @@ model JobApplication {
   id           String           @id @default(uuid())
   currentStage ApplicationStage @default(APPLIED)
   appliedAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  updatedAt    DateTime?        @updatedAt
   deletedAt    DateTime?
   candidateId  String
   positionId   String
@@ -193,7 +193,7 @@ model InternalProfile {
   employeeCode    String            @unique
   currentJobTitle String
   createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  updatedAt       DateTime?         @updatedAt
   candidateId     String            @unique
   departmentId    String
   userId          String?           @unique

@@ -2,43 +2,94 @@ import prisma from "../config/client";
 import { CreateJobPositionDTO, UpdateJobPositionDTO } from "../dto/jobPosition.dto";
 
 class JobPositionRepository {
-  findAll() {
-    return prisma.jobPosition.findMany({
-      include: { department: true }
+  async findAll() {
+  try {
+    const result = await prisma.jobPosition.findMany({
+      include: {
+        department: true,
+        _count: {
+          select: { applications: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
     });
+
+    return result;
+  } catch (error) {
+    console.error("Erro ao buscar todas as vagas:", error);
+    throw error;
+  }
+}
+
+  async findAllOpen() {
+    try {
+      return await prisma.jobPosition.findMany({
+        where: { status: 'OPEN' },
+        include: { 
+          department: true,
+          _count: { select: { applications: true } } 
+        },
+        orderBy: { createdAt: 'desc' }
+      });
+    } catch (error) {
+      console.error("Erro ao buscar vagas abertas:", error);
+      throw error;
+    }
   }
 
-  findAllOpen() {
-    return prisma.jobPosition.findMany({
-      where: { status: 'OPEN' },
-      include: { department: true }
-    });
+  async findById(id: string) {
+    try {
+      return await prisma.jobPosition.findUnique({
+        where: { id },
+        include: { 
+          department: true, 
+          _count: { select: { applications: true } } 
+        }
+      });
+    } catch (error) {
+      console.error(`Erro ao buscar vaga ${id}:`, error);
+      throw error;
+    }
   }
 
-  findById(id: string) {
-    return prisma.jobPosition.findUnique({
-      where: { id },
-      include: { department: true }
-    });
+  async create(data: CreateJobPositionDTO) {
+    try {
+      return await prisma.jobPosition.create({
+        data,
+        include: { 
+          department: true,
+          _count: { select: { applications: true } } // Mantém consistência
+        }
+      });
+    } catch (error) {
+      console.error("Erro ao criar vaga:", error);
+      throw error;
+    }
   }
 
-  create(data: CreateJobPositionDTO) {
-    return prisma.jobPosition.create({
-      data,
-      include: { department: true }
-    });
+  async update(id: string, data: UpdateJobPositionDTO) {
+    try {
+      return await prisma.jobPosition.update({
+        where: { id },
+        data,
+        include: { 
+          department: true,
+          _count: { select: { applications: true } } 
+        }
+      });
+    } catch (error) {
+      console.error(`Erro ao atualizar vaga ${id}:`, error);
+      throw error;
+    }
   }
 
-  update(id: string, data: UpdateJobPositionDTO) {
-    return prisma.jobPosition.update({
-      where: { id },
-      data,
-      include: { department: true }
-    });
-  }
-
-  delete(id: string) {
-    return prisma.jobPosition.delete({ where: { id } });
+  async delete(id: string) {
+    try {
+      return await prisma.jobPosition.delete({ where: { id } });
+    } catch (error) {
+      console.error(`Erro ao deletar vaga ${id}:`, error);
+      throw error;
+    }
   }
 }
 

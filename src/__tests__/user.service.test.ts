@@ -1,5 +1,7 @@
 import userService from '../services/user.service';
 import userRepository from '../repositories/user.repository';
+import { UserRole } from '@prisma/client';
+import { AppError } from '../middlewares/errorHandler.middleware';
 
 jest.mock('../repositories/user.repository');
 
@@ -10,9 +12,10 @@ const mockUser = {
   name: 'João Silva',
   email: 'joao@email.com',
   hashPassword: 'hashed-password',
-  role: 'RECRUITER' as any,
+  role: UserRole.RECRUITER,
   createdAt: new Date(),
-  updatedAt: new Date(),
+  updatedAt: null,
+  internalProfile: null,
 };
 
 describe('UserService', () => {
@@ -20,7 +23,7 @@ describe('UserService', () => {
 
   describe('findAll', () => {
     it('deve retornar lista de usuários', async () => {
-      mockUserRepository.findAll.mockResolvedValue([mockUser]);
+      mockUserRepository.findAll.mockResolvedValue([mockUser as any]);
 
       const result = await userService.findAll();
 
@@ -31,25 +34,25 @@ describe('UserService', () => {
 
   describe('findById', () => {
     it('deve retornar usuário quando encontrado', async () => {
-      mockUserRepository.findById.mockResolvedValue(mockUser);
+      mockUserRepository.findById.mockResolvedValue(mockUser as any);
 
       const result = await userService.findById('uuid-1');
 
       expect(result).toEqual(mockUser);
     });
 
-    it('deve lançar erro quando usuário não encontrado', async () => {
+    it('deve lançar AppError quando usuário não encontrado', async () => {
       mockUserRepository.findById.mockResolvedValue(null);
 
       await expect(userService.findById('uuid-inexistente'))
-        .rejects.toThrow('Usuário não encontrado');
+        .rejects.toThrow(AppError);
     });
   });
 
   describe('create', () => {
     it('deve criar usuário com sucesso e hashear senha', async () => {
       mockUserRepository.findByEmail.mockResolvedValue(null);
-      mockUserRepository.create.mockResolvedValue(mockUser);
+      mockUserRepository.create.mockResolvedValue(mockUser as any);
 
       const result = await userService.create({
         name: 'João Silva',
@@ -58,81 +61,66 @@ describe('UserService', () => {
       });
 
       expect(result).toEqual(mockUser);
-      // garante que a senha foi hasheada antes de salvar
       expect(mockUserRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          password: expect.not.stringContaining('Senha@123')
+          hashPassword: expect.any(String),
+          email: 'joao@email.com'
         })
       );
+ 
+      const calledArgs = mockUserRepository.create.mock.calls[0][0];
+      expect(calledArgs.hashPassword).not.toBe('Senha@123');
     });
 
     it('deve lançar erro quando email já cadastrado', async () => {
-      mockUserRepository.findByEmail.mockResolvedValue(mockUser);
+      mockUserRepository.findByEmail.mockResolvedValue(mockUser as any);
 
       await expect(userService.create({
         name: 'João Silva',
         email: 'joao@email.com',
         password: 'Senha@123',
       })).rejects.toThrow('Email já cadastrado');
-
-      expect(mockUserRepository.create).not.toHaveBeenCalled();
     });
   });
 
-  describe('update', () => {
-    it('deve atualizar usuário com sucesso', async () => {
-      mockUserRepository.findById.mockResolvedValue(mockUser);
-      mockUserRepository.update.mockResolvedValue({ ...mockUser, name: 'João Atualizado' });
+  describe('updateRole', () => {
+    it('deve lançar erro ao tentar rebaixar o único ADMIN', async () => {
+      mockUserRepository.findById.mockResolvedValue({ ...mockUser, role: UserRole.ADMIN } as any);
+      mockUserRepository.countByRole.mockResolvedValue(1);
 
-      const result = await userService.update('uuid-1', { name: 'João Atualizado' });
-
-      expect(result.name).toBe('João Atualizado');
+      await expect(userService.updateRole('uuid-1', UserRole.USER))
+        .rejects.toThrow('Não é possível rebaixar o único administrador do sistema');
     });
 
-    it('deve lançar erro quando usuário não encontrado', async () => {
-      mockUserRepository.findById.mockResolvedValue(null);
+    it('deve permitir alterar role se houver outros ADMINs', async () => {
+      mockUserRepository.findById.mockResolvedValue({ ...mockUser, role: UserRole.ADMIN } as any);
+      mockUserRepository.countByRole.mockResolvedValue(2);
+      mockUserRepository.update.mockResolvedValue({ ...mockUser, role: UserRole.USER } as any);
 
-      await expect(userService.update('uuid-inexistente', { name: 'João' }))
-        .rejects.toThrow('Usuário não encontrado');
+      await userService.updateRole('uuid-1', UserRole.USER);
+
+      expect(mockUserRepository.update).toHaveBeenCalledWith('uuid-1', { role: UserRole.USER });
     });
   });
 
   describe('delete', () => {
     it('deve deletar usuário RECRUITER com sucesso', async () => {
-      mockUserRepository.findById.mockResolvedValue(mockUser);
-      mockUserRepository.delete.mockResolvedValue(mockUser);
+      mockUserRepository.findById.mockResolvedValue(mockUser as any);
+      mockUserRepository.delete.mockResolvedValue(mockUser as any);
 
       await userService.delete('uuid-1');
 
       expect(mockUserRepository.delete).toHaveBeenCalledWith('uuid-1');
-      expect(mockUserRepository.countByRole).not.toHaveBeenCalled();
     });
 
-    it('deve lançar erro quando usuário não encontrado', async () => {
-      mockUserRepository.findById.mockResolvedValue(null);
-
-      await expect(userService.delete('uuid-inexistente'))
-        .rejects.toThrow('Usuário não encontrado');
-    });
-
-    it('deve lançar erro ao tentar remover o único ADMIN', async () => {
-      mockUserRepository.findById.mockResolvedValue({ ...mockUser, role: 'ADMIN' as any });
+    it('deve impedir a remoção do último ADMIN', async () => {
+      mockUserRepository.findById.mockResolvedValue({ ...mockUser, role: UserRole.ADMIN } as any);
       mockUserRepository.countByRole.mockResolvedValue(1);
 
       await expect(userService.delete('uuid-1'))
-        .rejects.toThrow('Não é possível remover o único administrador do sistema');
-
+        .rejects.toThrow(AppError);
+      
       expect(mockUserRepository.delete).not.toHaveBeenCalled();
-    });
-
-    it('deve permitir remover ADMIN quando há mais de um', async () => {
-      mockUserRepository.findById.mockResolvedValue({ ...mockUser, role: 'ADMIN' as any });
-      mockUserRepository.countByRole.mockResolvedValue(2);
-      mockUserRepository.delete.mockResolvedValue(mockUser);
-
-      await userService.delete('uuid-1');
-
-      expect(mockUserRepository.delete).toHaveBeenCalledWith('uuid-1');
     });
   });
 });

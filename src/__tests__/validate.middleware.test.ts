@@ -14,7 +14,7 @@ const mockNext = (): NextFunction => jest.fn();
 describe('ValidateMiddleware', () => {
   const schema = z.object({
     name:  z.string().min(2, 'Nome deve ter ao menos 2 caracteres'),
-    email: z.string().email('Email inválido'),
+    email: z.email('Email inválido'),
     age:   z.number().min(18, 'Idade mínima é 18 anos').optional(),
   });
 

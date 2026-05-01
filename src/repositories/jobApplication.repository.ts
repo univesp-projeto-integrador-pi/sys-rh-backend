@@ -2,55 +2,86 @@ import prisma from '../config/client';
 import { CreateJobApplicationDTO, UpdateJobApplicationDTO } from '../dto/jobApplication.dto';
 
 class JobApplicationRepository {
-  findAll() {
-    return prisma.jobApplication.findMany({
-      where: {
-        deletedAt: null,
-        candidate: { deletedAt: null }
-      },
-      include: { candidate: true, position: true }
-    });
+  async findAll() {
+    try {
+      return await prisma.jobApplication.findMany({
+        where: { deletedAt: null },
+        include: {
+          candidate: true,
+          position: { include: { department: true } }
+        },
+        orderBy: { appliedAt: 'desc' }
+      });
+    } catch (error) {
+      console.error("Erro ao buscar candidaturas:", error);
+      throw error;
+    }
   }
 
-  findById(id: string) {
-    if (!id) return null;
-    return prisma.jobApplication.findUnique({
-      where: { id },
-      include: {
-        candidate: true,
-        position: { include: { department: true } },
-        notes: { include: { author: true } }
+  async findById(id: string) {
+    try {
+      return await prisma.jobApplication.findFirst({
+        where: { id, deletedAt: null },
+        include: {
+          candidate: true,
+          position: { include: { department: true } },
+          notes: { include: { author: true } }
+        }
+      });
+    } catch (error) {
+      console.error(`Erro ao buscar candidatura ${id}:`, error);
+      throw error;
+    }
+  }
+
+  async checkExistingApplication(candidateId: string, positionId: string) {
+    return await prisma.jobApplication.findFirst({
+      where: {
+        candidateId,
+        positionId,
+        deletedAt: null
       }
     });
   }
 
-  findByCandidateId(candidateId: string) {
-    return prisma.jobApplication.findMany({
-      where: {
-        candidateId,
-        deletedAt: null,
-        candidate: { deletedAt: null }
-      },
-      include: { position: true }
-    });
+  async create(data: CreateJobApplicationDTO) {
+    try {
+      return await prisma.jobApplication.create({
+        data,
+        include: { candidate: true, position: true }
+      });
+    } catch (error) {
+      console.error("Erro ao registrar candidatura:", error);
+      throw error;
+    }
   }
 
-  create(data: CreateJobApplicationDTO) {
-    return prisma.jobApplication.create({
-      data,
-      include: { candidate: true, position: true }
-    });
+  async update(id: string, data: UpdateJobApplicationDTO) {
+    try {
+      return await prisma.jobApplication.update({
+        where: { id },
+        data,
+        include: {
+          candidate: true,
+          position: true
+        }
+      });
+    } catch (error) {
+      console.error(`Erro ao atualizar candidatura ${id}:`, error);
+      throw error;
+    }
   }
 
-  update(id: string, data: UpdateJobApplicationDTO) {
-    return prisma.jobApplication.update({ where: { id }, data });
-  }
-
-  softDelete(id: string) {
-    return prisma.jobApplication.update({
-      where: { id },
-      data: { deletedAt: new Date() }
-    });
+  async delete(id: string) {
+    try {
+      return await prisma.jobApplication.update({
+        where: { id },
+        data: { deletedAt: new Date() }
+      });
+    } catch (error) {
+      console.error(`Erro ao deletar candidatura ${id}:`, error);
+      throw error;
+    }
   }
 }
 

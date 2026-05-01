@@ -1,33 +1,52 @@
 import prisma from '../config/client';
 
 class RefreshTokenRepository {
-  create(userId: string, token: string, expiresAt: Date) {
+  async create(userId: string, token: string, expiresAt: Date) {
     return prisma.refreshToken.create({
-      data: { userId, token, expiresAt }
+      data: { 
+        userId, 
+        token, 
+        expiresAt 
+      }
     });
   }
 
-  findByToken(token: string) {
+  async findByToken(token: string) {
     return prisma.refreshToken.findFirst({
       where: {
         token,
         expiresAt: { gt: new Date() }
       },
-      include: { user: true }
+      include: { 
+        user: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            name: true
+          }
+        } 
+      }
     });
   }
 
-  deleteByToken(token: string) {
-    return prisma.refreshToken.delete({ where: { token } });
+  async deleteByToken(token: string) {
+    return prisma.refreshToken.deleteMany({ 
+      where: { token } 
+    });
   }
 
-  deleteAllByUserId(userId: string) {
-    return prisma.refreshToken.deleteMany({ where: { userId } });
+  async deleteAllByUserId(userId: string) {
+    return prisma.refreshToken.deleteMany({ 
+      where: { userId } 
+    });
   }
 
-  deleteExpired() {
+  async deleteExpired() {
     return prisma.refreshToken.deleteMany({
-      where: { expiresAt: { lt: new Date() } }
+      where: { 
+        expiresAt: { lt: new Date() } 
+      }
     });
   }
 }

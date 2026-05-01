@@ -1,11 +1,9 @@
-import { UserRole } from '@prisma/client';
 import { Request, Response, NextFunction } from 'express';
 
-export function requireRole(...roles: UserRole[]) {
+type Role = 'ADMIN' | 'RECRUITER' | 'VIEWER' | 'USER';
+
+export function requireRole(...roles: Role[]) {
   return (req: Request, res: Response, next: NextFunction) => {
-    console.log('Role do Usuário:', req.role);
-    console.log('Roles Permitidas:', roles);
-    
     if (!req.role) {
       res.status(403).json({
         message: 'Seu perfil ainda não possui permissões. Aguarde a configuração pelo administrador.'
@@ -13,7 +11,7 @@ export function requireRole(...roles: UserRole[]) {
       return;
     }
 
-    if (!roles.includes(req.role as UserRole)) {
+    if (!roles.includes(req.role as Role)) {
       res.status(403).json({
         message: `Acesso negado. Requer perfil: ${roles.join(' ou ')}`
       });

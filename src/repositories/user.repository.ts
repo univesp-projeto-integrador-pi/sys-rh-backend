@@ -1,5 +1,5 @@
+import { UserRole, Prisma } from "@prisma/client";
 import prisma from "../config/client";
-import { CreateUserDTO, UpdateUserDTO } from "../dto/user.dto";
 
 const userPublicSelect = {
   id: true,
@@ -8,43 +8,60 @@ const userPublicSelect = {
   role: true,
   createdAt: true,
   updatedAt: true,
+  internalProfile: {
+    select: {
+      currentJobTitle: true,
+      employeeCode: true,
+      status: true,
+      department: {
+        select: { name: true }
+      }
+    }
+  }
 };
 
 class UserRepository {
-  findAll() {
-    return prisma.user.findMany({ select: userPublicSelect });
-  }
-
-  findById(id: string) {
-    return prisma.user.findUnique({ where: { id }, select: userPublicSelect });
-  }
-
-  findByEmail(email: string) {
-    // Usado internamente (validação / autenticação). Retorna senha.
-    return prisma.user.findUnique({ where: { email } });
-  }
-
-  create(data: CreateUserDTO) {
-    return prisma.user.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        hashPassword: data.password,
-      },
-      select: userPublicSelect
+  async findAll() {
+    return await prisma.user.findMany({ 
+      select: userPublicSelect,
+      orderBy: { createdAt: 'desc' } 
     });
   }
 
-  update(id: string, data: UpdateUserDTO) {
-    return prisma.user.update({ where: { id }, data, select: userPublicSelect });
+  async findById(id: string) {
+    return await prisma.user.findUnique({ 
+      where: { id }, 
+      select: userPublicSelect 
+    });
   }
 
-  delete(id: string) {
-    return prisma.user.delete({ where: { id } });
+  async findByEmail(email: string) {
+    return await prisma.user.findUnique({ where: { email } });
   }
 
-  countByRole(role: string) {
-    return prisma.user.count({ where: { role: role as any } });
+  async create(data: Prisma.UserCreateInput) {
+    return await prisma.user.create({ 
+      data, 
+      select: userPublicSelect 
+    });
+  }
+
+  async update(id: string, data: Prisma.UserUpdateInput) {
+    return await prisma.user.update({ 
+      where: { id }, 
+      data, 
+      select: userPublicSelect 
+    });
+  }
+
+  async delete(id: string) {
+    return await prisma.user.delete({ where: { id } });
+  }
+
+  async countByRole(role: UserRole) {
+    return await prisma.user.count({ 
+      where: { role } 
+    });
   }
 }
 
