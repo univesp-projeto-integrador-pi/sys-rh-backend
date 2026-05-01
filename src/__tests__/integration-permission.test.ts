@@ -105,7 +105,7 @@ describe('Integração: Auth + Role Middleware (Cenário de Permissão de Vaga)'
       const next = mockNext();
 
       authMiddleware(req as Request, res as Response, next);
-      expect((req as any).role).toBe(null);
+      expect((req as any).role).toBe(undefined);
 
       jest.clearAllMocks();
       const res2  = mockRes();

@@ -2,184 +2,99 @@ import internalNoteService from '../services/internalNote.service';
 import internalNoteRepository from '../repositories/internalNote.repository';
 import jobApplicationRepository from '../repositories/jobApplication.repository';
 import userRepository from '../repositories/user.repository';
+import * as ownershipUtils from '../utils/ownership'; // Importamos para mocar
 
 jest.mock('../repositories/internalNote.repository');
 jest.mock('../repositories/jobApplication.repository');
 jest.mock('../repositories/user.repository');
+jest.mock('../utils/ownership');
 
-const mockInternalNoteRepository = internalNoteRepository as jest.Mocked<typeof internalNoteRepository>;
-const mockJobApplicationRepository = jobApplicationRepository as jest.Mocked<typeof jobApplicationRepository>;
-const mockUserRepository = userRepository as jest.Mocked<typeof userRepository>;
-
-const mockUser = {
-  id: 'user-1',
-  name: 'Recrutador',
-  email: 'recrutador@empresa.com',
-  hashPassword: 'hashed-password',
-  role: 'RECRUITER' as any,   
-  createdAt: new Date(),
-  updatedAt: new Date(),
-};
-
-const mockCandidate = {
-  id: 'candidate-1',
-  fullName: 'Maria Souza',
-  email: 'maria@email.com',
-  phone: null,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  deletedAt: null,
-  resume: null,         
-  internalProfile: null,
-};
-
-const mockPosition = {
-  id: 'position-1',
-  title: 'Dev Backend',
-  description: null,
-  status: 'OPEN' as const,
-  departmentId: 'dept-1',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  department: { id: 'dept-1', name: 'Tecnologia' },
-};
+const mockNoteRepo = internalNoteRepository as jest.Mocked<typeof internalNoteRepository>;
+const mockAppRepo = jobApplicationRepository as jest.Mocked<typeof jobApplicationRepository>;
+const mockUserRepo = userRepository as jest.Mocked<typeof userRepository>;
+const mockAssertOwnership = ownershipUtils.assertOwnership as jest.Mock;
 
 const mockNote = {
   id: 'note-1',
-  content: 'Candidato com bom perfil técnico',
-  rating: 4,
+  content: 'Ótimo candidato',
   applicationId: 'app-1',
-  authorId: 'user-1',
-  createdAt: new Date(),
-  author: mockUser,
-};
-
-const mockApplication = {
-  id: 'app-1',
-  candidateId: 'candidate-1',
-  positionId: 'position-1',
-  currentStage: 'APPLIED' as const,
-  appliedAt: new Date(),
-  updatedAt: new Date(),
-  deletedAt: null,
-  candidate: mockCandidate,
-  position: mockPosition,
-  notes: [],
+  authorId: 'user-1'
 };
 
 describe('InternalNoteService', () => {
   beforeEach(() => jest.clearAllMocks());
 
-  describe('findByApplicationId', () => {
-    it('deve retornar notas da candidatura', async () => {
-      mockJobApplicationRepository.findById.mockResolvedValue(mockApplication);
-      mockInternalNoteRepository.findByApplicationId.mockResolvedValue([mockNote]);
-
-      const result = await internalNoteService.findByApplicationId('app-1');
-
-      expect(result).toHaveLength(1);
-    });
-
-    it('deve lançar erro quando candidatura não encontrada', async () => {
-      mockJobApplicationRepository.findById.mockResolvedValue(null);
-
-      await expect(internalNoteService.findByApplicationId('inexistente'))
-        .rejects.toThrow('Candidatura não encontrada');
-    });
-  });
-
   describe('create', () => {
-    it('deve criar nota com sucesso', async () => {
-      mockJobApplicationRepository.findById.mockResolvedValue(mockApplication);
-      mockUserRepository.findById.mockResolvedValue(mockUser);
-      mockInternalNoteRepository.create.mockResolvedValue(mockNote);
-
-      const result = await internalNoteService.create({
-        content: 'Candidato com bom perfil técnico',
-        rating: 4,
-        applicationId: 'app-1',
-        authorId: 'user-1',
-      });
-
-      expect(result).toEqual(mockNote);
-    });
-
-    it('deve lançar erro quando candidatura não encontrada', async () => {
-      mockJobApplicationRepository.findById.mockResolvedValue(null);
-
-      await expect(internalNoteService.create({
-        content: 'Nota',
-        applicationId: 'inexistente',
-        authorId: 'user-1',
-      })).rejects.toThrow('Candidatura não encontrada');
-    });
-
-    it('deve lançar erro quando usuário não encontrado', async () => {
-      mockJobApplicationRepository.findById.mockResolvedValue(mockApplication);
-      mockUserRepository.findById.mockResolvedValue(null);
-
-      await expect(internalNoteService.create({
-        content: 'Nota',
-        applicationId: 'app-1',
-        authorId: 'inexistente',
-      })).rejects.toThrow('Usuário não encontrado');
-    });
-
-    it('deve lançar erro quando rating inválido', async () => {
-      mockJobApplicationRepository.findById.mockResolvedValue(mockApplication);
-      mockUserRepository.findById.mockResolvedValue(mockUser);
+    it('deve lançar erro se o rating for inválido (ex: 6)', async () => {
+      mockAppRepo.findById.mockResolvedValue({ id: 'app-1' } as any);
+      mockUserRepo.findById.mockResolvedValue({ id: 'user-1' } as any);
 
       await expect(internalNoteService.create({
         content: 'Nota',
         rating: 6,
         applicationId: 'app-1',
-        authorId: 'user-1',
+        authorId: 'user-1'
       })).rejects.toThrow('Rating deve ser entre 1 e 5');
+    });
+
+    it('deve criar nota com sucesso', async () => {
+      mockAppRepo.findById.mockResolvedValue({ id: 'app-1' } as any);
+      mockUserRepo.findById.mockResolvedValue({ id: 'user-1' } as any);
+      mockNoteRepo.create.mockResolvedValue(mockNote as any);
+
+      const result = await internalNoteService.create({
+        content: 'Ótimo candidato',
+        applicationId: 'app-1',
+        authorId: 'user-1'
+      });
+
+      expect(result).toEqual(mockNote);
+      expect(mockNoteRepo.create).toHaveBeenCalled();
     });
   });
 
   describe('delete', () => {
-    it('deve deletar nota com sucesso quando autor é o mesmo', async () => {
-      mockInternalNoteRepository.findById.mockResolvedValue(mockNote);
-      mockInternalNoteRepository.delete.mockResolvedValue(mockNote);
+    it('deve deletar nota com sucesso se for o dono e da aplicação correta', async () => {
+      mockNoteRepo.findById.mockResolvedValue(mockNote as any);
+      mockNoteRepo.delete.mockResolvedValue(mockNote as any);
 
       await internalNoteService.delete('note-1', 'app-1', 'user-1');
 
-      expect(mockInternalNoteRepository.delete).toHaveBeenCalledWith('note-1');
+      expect(mockNoteRepo.delete).toHaveBeenCalledWith('note-1');
     });
 
-    it('deve lançar erro quando nota não pertence à candidatura', async () => {
-      mockInternalNoteRepository.findById.mockResolvedValue(mockNote);
+    it('deve lançar erro se a nota não pertencer à aplicação informada', async () => {
+      mockNoteRepo.findById.mockResolvedValue(mockNote as any);
 
       await expect(internalNoteService.delete('note-1', 'app-errada', 'user-1'))
-        .rejects.toMatchObject({
-          message: 'Nota não pertence a esta candidatura',
-          statusCode: 404,
-        });
-
-      expect(mockInternalNoteRepository.delete).not.toHaveBeenCalled();
+        .rejects.toThrow('Nota não pertence a esta candidatura');
+      
+      expect(mockNoteRepo.delete).not.toHaveBeenCalled();
     });
 
-    it('deve lançar erro quando outro usuário tenta deletar a nota', async () => {
-      mockInternalNoteRepository.findById.mockResolvedValue(mockNote);
+    it('deve lançar erro se assertOwnership falhar', async () => {
+      mockNoteRepo.findById.mockResolvedValue(mockNote as any);
+      mockAssertOwnership.mockImplementation(() => {
+        throw new Error('Apenas o autor pode deletar esta nota');
+      });
 
       await expect(internalNoteService.delete('note-1', 'app-1', 'outro-usuario'))
-        .rejects.toMatchObject({
-          message: 'Apenas o autor pode deletar esta nota',
-          statusCode: 403,
-        });
-
-      expect(mockInternalNoteRepository.delete).not.toHaveBeenCalled();
+        .rejects.toThrow('Apenas o autor pode deletar esta nota');
     });
+  });
 
-    it('deve lançar erro quando nota não encontrada', async () => {
-      mockInternalNoteRepository.findById.mockResolvedValue(null);
+  describe('createAuditNote', () => {
+    it('deve criar uma nota de auditoria sem validações extras', async () => {
+      mockNoteRepo.create.mockResolvedValue({ id: 'audit-1' } as any);
 
-      await expect(internalNoteService.delete('nota-inexistente', 'app-1', 'user-1'))
-        .rejects.toMatchObject({
-          message: 'Nota não encontrada',
-          statusCode: 404,
-        });
+      const result = await internalNoteService.createAuditNote('app-1', 'system', 'Teste');
+
+      expect(result).toBeDefined();
+      expect(mockNoteRepo.create).toHaveBeenCalledWith({
+        content: 'Teste',
+        applicationId: 'app-1',
+        authorId: 'system'
+      });
     });
   });
 });

@@ -66,7 +66,7 @@ describe('CandidateService', () => {
       await expect(candidateService.create({
         fullName: 'Maria Souza',
         email: 'maria@email.com',
-      })).rejects.toThrow('Email já cadastrado');
+      })).rejects.toThrow('Você já possui um perfil de candidato cadastrado.');
 
       expect(mockCandidateRepository.create).not.toHaveBeenCalled();
     });

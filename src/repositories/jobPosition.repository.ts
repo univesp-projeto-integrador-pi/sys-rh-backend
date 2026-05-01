@@ -14,9 +14,6 @@ class JobPositionRepository {
       orderBy: { createdAt: 'desc' }
     });
 
-    // DEBUG — remova depois de confirmar
-    console.log('DEBUG _count:', JSON.stringify(result[0], null, 2));
-
     return result;
   } catch (error) {
     console.error("Erro ao buscar todas as vagas:", error);
@@ -36,7 +33,7 @@ class JobPositionRepository {
       });
     } catch (error) {
       console.error("Erro ao buscar vagas abertas:", error);
-      return [];
+      throw error;
     }
   }
 

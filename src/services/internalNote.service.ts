@@ -26,12 +26,10 @@ class InternalNoteService {
     return internalNoteRepository.create(data);
   }
 
-  // ← applicationId adicionado como parâmetro
   async delete(noteId: string, applicationId: string, requestingUserId: string) {
     const note = await internalNoteRepository.findById(noteId);
     if (!note) throw new AppError('Nota não encontrada', 404);
 
-    // garante que a nota pertence à candidatura informada
     if (note.applicationId !== applicationId) {
       throw new AppError('Nota não pertence a esta candidatura', 404);
     }

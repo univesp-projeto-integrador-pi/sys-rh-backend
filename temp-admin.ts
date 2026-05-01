@@ -3,31 +3,37 @@ import bcrypt from 'bcrypt';
 
 (async () => {
   try {
-    // Remover usuário antigo se existir
-    try {
-      await prisma.user.delete({ where: { email: 'admin@teste.com' } });
-      console.log('✅ Usuário antigo removido');
-    } catch (e) {
-      // Usuário não existe, tudo bem
-    }
-    
-    // Criar novo usuário admin com senha conhecida
-    const hashedPassword = await bcrypt.hash('123456', 10);
-    const user = await prisma.user.create({
-      data: {
+    console.log('🚀 Iniciando seed de Admin...');
+
+    const email = 'admin@teste.com';
+    const password = '123456';
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.upsert({
+      where: { email },
+      update: {
         name: 'Admin',
-        email: 'admin@teste.com',
-        password: hashedPassword,
+        hashPassword: hashedPassword,
+        role: 'ADMIN'
+      },
+      create: {
+        name: 'Admin',
+        email: email,
+        hashPassword: hashedPassword,
         role: 'ADMIN'
       }
     });
-    
-    console.log('✅ Usuário admin criado com sucesso!');
-    console.log('Email: admin@teste.com');
-    console.log('Senha: 123456');
-    console.log('Role: ADMIN');
+
+    console.log('─'.repeat(30));
+    console.log('✅ Usuário admin pronto!');
+    console.log(`ID:    ${user.id}`);
+    console.log(`Email: ${user.email}`);
+    console.log(`Senha: ${password}`);
+    console.log(`Role:  ${user.role}`);
+    console.log('─'.repeat(30));
+
   } catch (e: any) {
-    console.error('❌ Erro:', e.message);
+    console.error('❌ Erro no seed:', e.message);
   } finally {
     await prisma.$disconnect();
   }
