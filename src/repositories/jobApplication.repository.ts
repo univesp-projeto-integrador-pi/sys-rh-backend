@@ -26,13 +26,12 @@ class JobApplicationRepository {
     });
   }
 
-  // 🚨 NOVA FUNÇÃO: Checa se já existe uma candidatura ativa para esta vaga
   async checkExistingApplication(candidateId: string, positionId: string) {
     return await prisma.jobApplication.findFirst({
       where: {
         candidateId,
         positionId,
-        deletedAt: null // Considera apenas candidaturas ativas
+        deletedAt: null
       }
     });
   }
@@ -49,7 +48,13 @@ class JobApplicationRepository {
     }
   }
 
-  // ... (mantenha os outros métodos update e softDelete com try/catch)
+  async delete(id: string) {
+    prisma.jobApplication.delete({
+      where: {
+        id
+      }
+    });
+  }
 }
 
 export default new JobApplicationRepository();

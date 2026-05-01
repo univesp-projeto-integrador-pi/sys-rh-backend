@@ -9,7 +9,7 @@ const mockUser = {
   id: 'uuid-1',
   name: 'João Silva',
   email: 'joao@email.com',
-  password: 'hashed-password',
+  hashPassword: 'hashed-password',
   role: 'RECRUITER' as any,
   createdAt: new Date(),
   updatedAt: new Date(),
