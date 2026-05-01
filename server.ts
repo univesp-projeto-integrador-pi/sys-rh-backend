@@ -21,16 +21,28 @@ import csrfRoutes from './src/routes/csrf.routes';
 
 const app = express();
 
-// 1. Configurações de Segurança e Base
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'http://localhost:5174',
+  'http://127.0.0.1:5174'
+].filter(Boolean);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || process.env.NODE_ENV === 'development' || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
+
 app.use(helmet());
 app.use(express.json());
 app.use(globalLimiter);
-
-// 2. Configuração de CORS (Unificada para evitar conflitos)
-app.use(cors({
-  origin: process.env.FRONTEND_URL || ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000', 'http://127.0.0.1:3000'],
-  credentials: true,
-}));
 
 // 3. Documentação
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

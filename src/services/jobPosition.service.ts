@@ -24,10 +24,17 @@ class JobPositionService {
   }
 
   async update(id: string, data: UpdateJobPositionDTO) {
+    // Verifica se a vaga existe antes de atualizar
+    const exists = await jobPositionRepository.findById(id);
+    if (!exists) throw new Error('Vaga não encontrada');
+    
     return jobPositionRepository.update(id, data);
   }
 
   async delete(id: string) {
+    const exists = await jobPositionRepository.findById(id);
+    if (!exists) throw new Error('Vaga não encontrada');
+    
     return jobPositionRepository.delete(id);
   }
 }
