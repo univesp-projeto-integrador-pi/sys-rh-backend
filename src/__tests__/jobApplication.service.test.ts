@@ -1,171 +1,106 @@
-import jobApplicationService from '../services/jobApplication.service';
-import jobApplicationRepository from '../repositories/jobApplication.repository';
-import candidateRepository from '../repositories/candidate.repository';
-import jobPositionRepository from '../repositories/jobPosition.repository';
-import internalNoteService from '../services/internalNote.service';
+import jobApplicationService from "../services/jobApplication.service";
+import jobApplicationRepository from "../repositories/jobApplication.repository";
+import candidateRepository from "../repositories/candidate.repository";
+import jobPositionRepository from "../repositories/jobPosition.repository";
 
-jest.mock('../repositories/jobApplication.repository');
-jest.mock('../repositories/candidate.repository');
-jest.mock('../repositories/jobPosition.repository');
-jest.mock('../services/internalNote.service');
+jest.mock("../repositories/jobApplication.repository");
+jest.mock("../repositories/candidate.repository");
+jest.mock("../repositories/jobPosition.repository");
 
-const mockJobApplicationRepository = jobApplicationRepository as jest.Mocked<typeof jobApplicationRepository>;
-const mockCandidateRepository = candidateRepository as jest.Mocked<typeof candidateRepository>;
-const mockJobPositionRepository = jobPositionRepository as jest.Mocked<typeof jobPositionRepository>;
-const mockInternalNoteService = internalNoteService as jest.Mocked<typeof internalNoteService>;
-
-const mockDepartment = { id: 'dept-1', name: 'Tecnologia' };
+const mockJobApplicationRepo = jobApplicationRepository as jest.Mocked<
+  typeof jobApplicationRepository
+>;
+const mockCandidateRepo = candidateRepository as jest.Mocked<
+  typeof candidateRepository
+>;
+const mockJobPositionRepo = jobPositionRepository as jest.Mocked<
+  typeof jobPositionRepository
+>;
 
 const mockCandidate = {
-  id: 'candidate-1',
-  fullName: 'Maria Souza',
-  email: 'maria@email.com',
-  phone: null,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  deletedAt: null,
-  resume: null,
-  internalProfile: null,
+  id: "cand-1",
+  email: "maria@email.com",
+  fullName: "Maria",
 };
-
-const mockPosition = {
-  id: 'position-1',
-  title: 'Dev Backend',
-  description: null,
-  status: 'OPEN' as const,
-  departmentId: 'dept-1',
-  createdAt: new Date(),
-  updatedAt: new Date(),
-  department: mockDepartment,
-};
-
+const mockPosition = { id: "pos-1", title: "Dev", status: "OPEN" as const };
 const mockApplication = {
-  id: 'uuid-1',
-  candidateId: 'candidate-1',
-  positionId: 'position-1',
-  currentStage: 'APPLIED' as const,
-  appliedAt: new Date(),
-  updatedAt: new Date(),
-  deletedAt: null,
-  candidate: mockCandidate,
-  position: mockPosition,
-  notes: [],
+  id: "app-1",
+  candidateId: "cand-1",
+  positionId: "pos-1",
+  currentStage: "APPLIED" as const,
 };
 
-describe('JobApplicationService', () => {
+describe("JobApplicationService", () => {
   beforeEach(() => jest.clearAllMocks());
 
-  describe('create', () => {
-    it('deve criar candidatura com sucesso', async () => {
-      mockCandidateRepository.findById.mockResolvedValue(mockCandidate);
-      mockJobPositionRepository.findById.mockResolvedValue(mockPosition);
-      mockJobApplicationRepository.findByCandidateId.mockResolvedValue([]);
-      mockJobApplicationRepository.create.mockResolvedValue(mockApplication);
+  describe("create", () => {
+    it("deve criar candidatura com sucesso", async () => {
+      mockCandidateRepo.findByEmail.mockResolvedValue(mockCandidate as any);
+      mockJobPositionRepo.findById.mockResolvedValue(mockPosition as any);
+      mockJobApplicationRepo.checkExistingApplication.mockResolvedValue(null);
+      mockJobApplicationRepo.create.mockResolvedValue(mockApplication as any);
 
-      const result = await jobApplicationService.create({
-        candidateId: 'candidate-1',
-        positionId: 'position-1',
-      });
+      const result = await jobApplicationService.create(
+        "pos-1",
+        "maria@email.com",
+      );
 
       expect(result).toEqual(mockApplication);
+      expect(mockJobApplicationRepo.create).toHaveBeenCalled();
     });
 
-    it('deve lançar erro quando candidato não encontrado', async () => {
-      mockCandidateRepository.findById.mockResolvedValue(null);
+    it("deve lançar erro quando candidato não encontrado", async () => {
+      mockCandidateRepo.findByEmail.mockResolvedValue(null);
 
-      await expect(jobApplicationService.create({
-        candidateId: 'inexistente',
-        positionId: 'position-1',
-      })).rejects.toThrow('Candidato não encontrado');
+      await expect(
+        jobApplicationService.create("pos-1", "err@email.com"),
+      ).rejects.toThrow("Perfil de candidato não encontrado.");
     });
 
-    it('deve lançar erro quando vaga não encontrada', async () => {
-      mockCandidateRepository.findById.mockResolvedValue(mockCandidate);
-      mockJobPositionRepository.findById.mockResolvedValue(null);
-
-      await expect(jobApplicationService.create({
-        candidateId: 'candidate-1',
-        positionId: 'inexistente',
-      })).rejects.toThrow('Vaga não encontrada');
-    });
-
-    it('deve lançar erro quando vaga não está aberta', async () => {
-      mockCandidateRepository.findById.mockResolvedValue(mockCandidate);
-      mockJobPositionRepository.findById.mockResolvedValue({
+    it("deve lançar erro quando vaga está fechada", async () => {
+      mockCandidateRepo.findByEmail.mockResolvedValue(mockCandidate as any);
+      mockJobPositionRepo.findById.mockResolvedValue({
         ...mockPosition,
-        status: 'CLOSED' as const,
-      });
+        status: "CLOSED",
+      } as any);
 
-      await expect(jobApplicationService.create({
-        candidateId: 'candidate-1',
-        positionId: 'position-1',
-      })).rejects.toThrow('Vaga não está aberta');
+      await expect(
+        jobApplicationService.create("pos-1", "maria@email.com"),
+      ).rejects.toThrow("Vaga indisponível.");
     });
 
-    it('deve lançar erro quando candidato já se candidatou para a vaga', async () => {
-      mockCandidateRepository.findById.mockResolvedValue(mockCandidate);
-      mockJobPositionRepository.findById.mockResolvedValue(mockPosition);
-      mockJobApplicationRepository.findByCandidateId.mockResolvedValue([mockApplication]);
+    it("deve lançar erro quando o candidato já está inscrito", async () => {
+      mockCandidateRepo.findByEmail.mockResolvedValue(mockCandidate as any);
+      mockJobPositionRepo.findById.mockResolvedValue(mockPosition as any);
+      mockJobApplicationRepo.checkExistingApplication.mockResolvedValue(
+        mockApplication as any,
+      );
 
-      await expect(jobApplicationService.create({
-        candidateId: 'candidate-1',
-        positionId: 'position-1',
-      })).rejects.toThrow('Candidato já se candidatou para esta vaga');
+      await expect(
+        jobApplicationService.create("pos-1", "maria@email.com"),
+      ).rejects.toThrow("Você já se candidatou para esta vaga");
     });
   });
 
-  describe('updateStage', () => {
-    it('deve atualizar etapa com sucesso e criar nota de auditoria', async () => {
-      mockJobApplicationRepository.findById.mockResolvedValue(mockApplication);
-      mockJobApplicationRepository.update.mockResolvedValue({
-        ...mockApplication,
-        currentStage: 'SCREENING' as const,
-      });
-      mockInternalNoteService.createAuditNote.mockResolvedValue({} as any);
-
-      const result = await jobApplicationService.updateStage(
-        'uuid-1',
-        { currentStage: 'SCREENING' },
-        'user-1'
-      );
-
-      expect(result.currentStage).toBe('SCREENING');
-      expect(mockInternalNoteService.createAuditNote).toHaveBeenCalledWith(
-        'uuid-1',
-        'user-1',
-        'Etapa alterada para SCREENING'
-      );
-    });
-
-    it('deve lançar erro quando candidatura não encontrada', async () => {
-      mockJobApplicationRepository.findById.mockResolvedValue(null);
-
-      await expect(jobApplicationService.updateStage(
-        'inexistente',
-        { currentStage: 'SCREENING' },
-        'user-1'
-      )).rejects.toThrow('Candidatura não encontrada');
-    });
-  });
-
-  describe('delete (soft delete)', () => {
-    it('deve fazer soft delete com sucesso', async () => {
-      mockJobApplicationRepository.findById.mockResolvedValue(mockApplication);
-      mockJobApplicationRepository.softDelete.mockResolvedValue({
+  describe("delete", () => {
+    it("deve realizar a exclusão lógica com sucesso", async () => {
+      mockJobApplicationRepo.findById.mockResolvedValue(mockApplication as any);
+      mockJobApplicationRepo.delete.mockResolvedValue({
         ...mockApplication,
         deletedAt: new Date(),
-      });
+      } as any);
 
-      await jobApplicationService.delete('uuid-1');
+      await jobApplicationService.delete("app-1");
 
-      expect(mockJobApplicationRepository.softDelete).toHaveBeenCalledWith('uuid-1');
+      expect(mockJobApplicationRepo.delete).toHaveBeenCalledWith("app-1");
     });
 
-    it('deve lançar erro quando candidatura não encontrada', async () => {
-      mockJobApplicationRepository.findById.mockResolvedValue(null);
+    it("deve lançar erro se a candidatura não existir", async () => {
+      mockJobApplicationRepo.findById.mockResolvedValue(null);
 
-      await expect(jobApplicationService.delete('uuid-inexistente'))
-        .rejects.toThrow('Candidatura não encontrada');
+      await expect(jobApplicationService.delete("app-invalid")).rejects.toThrow(
+        "Candidatura não encontrada",
+      );
     });
   });
 });

@@ -1,11 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
-import internalNoteService from '../services/internalNote.service';
+import { Request, Response, NextFunction } from "express";
+import internalNoteService from "../services/internalNote.service";
 
 class InternalNoteController {
   async findByApplicationId(req: Request, res: Response, next: NextFunction) {
     try {
       const { applicationId } = req.params as { applicationId: string };
-      const notes = await internalNoteService.findByApplicationId(applicationId);
+      const notes =
+        await internalNoteService.findByApplicationId(applicationId);
       res.json(notes);
     } catch (error) {
       next(error);
@@ -23,8 +24,11 @@ class InternalNoteController {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      const { id, applicationId } = req.params as { id: string; applicationId: string };
-      const requestingUserId = req.userId!;
+      const { id, applicationId } = req.params as {
+        id: string;
+        applicationId: string;
+      };
+      const requestingUserId = req.user!.id;
       await internalNoteService.delete(id, applicationId, requestingUserId);
       res.status(204).send();
     } catch (error) {
