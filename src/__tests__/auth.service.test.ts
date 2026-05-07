@@ -25,7 +25,7 @@ const mockUser = {
   hashPassword: "hashed-password",
   role: UserRole.RECRUITER,
   createdAt: new Date(),
-  updatedAt: null,
+  updatedAt: new Date(),
 };
 
 beforeAll(() => {
