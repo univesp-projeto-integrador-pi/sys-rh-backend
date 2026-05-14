@@ -14,31 +14,24 @@ class CandidateService {
   }
 
   async findByEmail(email: string) {
-    const candidate = await candidateRepository.findByEmail(email);
-    return candidate; // Se não existir, retorna null. O Controller cuidará do 404.
-  }
+  const candidate = await candidateRepository.findByEmail(email);
+  return candidate; // Se não existir, retorna null. O Controller cuidará do 404.
+}
 
   async create(data: any) {
-    // 🔍 LOG DE INSPEÇÃO PROFUNDA
+    // LOG DE INSPEÇÃO
     console.log("-------------------------------------------------");
-    console.log(
-      "⚙️ [SERVICE] Chaves recebidas no objeto 'data':",
-      Object.keys(data),
-    );
+    console.log("⚙️ [SERVICE] Chaves recebidas no objeto 'data':", Object.keys(data));
     console.log("⚙️ [SERVICE] Conteúdo bruto de 'education':", data.education);
 
     const existing = await candidateRepository.findByEmail(data.email);
-    if (existing)
-      throw new AppError(
-        "Você já possui um perfil de candidato cadastrado.",
-        409,
-      );
-
-    // VERIFICAÇÃO À PROVA DE BALAS:
+    if (existing) throw new AppError('Você já possui um perfil de candidato cadastrado.', 409);
+    
+    // VERIFICAÇÃO
     // Checa se 'education' existe, se é um objeto e se tem a instituição (mesmo que vazia)
     const hasEducationData = !!(
-      data.education &&
-      typeof data.education === "object" &&
+      data.education && 
+      typeof data.education === 'object' && 
       (data.education.institution || data.education.degree)
     );
 

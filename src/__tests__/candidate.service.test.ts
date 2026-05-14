@@ -80,7 +80,7 @@ describe('CandidateService', () => {
         fullName: 'Maria Atualizada',
       });
 
-      const result = await candidateService.update('uuid-1', { fullName: 'Maria Atualizada', email: 'maria@email.com'});
+      const result = await candidateService.update('uuid-1', { fullName: 'Maria Atualizada' });
 
       expect(result.fullName).toBe('Maria Atualizada');
     });
@@ -88,7 +88,7 @@ describe('CandidateService', () => {
     it('deve lançar erro quando candidato não encontrado', async () => {
       mockCandidateRepository.findById.mockResolvedValue(null);
 
-      await expect(candidateService.update('uuid-inexistente', { fullName: 'Maria', email: 'maria@email.com' }))
+      await expect(candidateService.update('uuid-inexistente', { fullName: 'Maria' }))
         .rejects.toThrow('Candidato não encontrado');
     });
   });

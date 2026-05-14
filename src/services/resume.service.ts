@@ -1,8 +1,8 @@
-import resumeRepository from "../repositories/resume.repository";
-import candidateRepository from "../repositories/candidate.repository";
+import resumeRepository from '../repositories/resume.repository';
+import candidateRepository from '../repositories/candidate.repository';
 
-import { AppError } from "../middlewares/errorHandler.middleware";
-import { CreateResumeDTO, UpdateResumeDTO } from "../dto/resume.dto";
+import { AppError } from '../middlewares/errorHandler.middleware';
+import { CreateResumeDTO, UpdateResumeDTO } from '../dto/resume.dto';
 
 class ResumeService {
   async findByCandidateId(candidateId: string) {

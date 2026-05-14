@@ -8,10 +8,10 @@ class CandidateRepository {
       include: {
         resume: {
           include: {
-            educations: true,
-          },
-        },
-      },
+            educations: true
+          }
+        }
+      }
     });
   }
 
@@ -21,26 +21,26 @@ class CandidateRepository {
       include: {
         resume: {
           include: {
-            educations: true,
-          },
+            educations: true
+          }
         },
-        internalProfile: true,
-      },
+        internalProfile: true
+      }
     });
   }
 
-  // 🚀 CORREÇÃO AQUI: Adicionado 'include' para que o Service/Frontend
+  // 🚀 CORREÇÃO AQUI: Adicionado 'include' para que o Service/Frontend 
   // saiba que o currículo e educação existem ao buscar pelo e-mail (usado na Home).
   async findByEmail(email: string) {
-    return prisma.candidate.findUnique({
+    return prisma.candidate.findUnique({ 
       where: { email },
       include: {
         resume: {
           include: {
-            educations: true,
-          },
-        },
-      },
+            educations: true
+          }
+        }
+      }
     });
   }
 
@@ -53,12 +53,10 @@ class CandidateRepository {
     console.log("🚀 [REPO] Iniciando transação createWithEducation");
 
     const edu = data.education || {};
-
+    
     try {
       // Garantimos que as datas sejam objetos Date válidos ou null
-      const safeStartDate = edu.startDate
-        ? new Date(edu.startDate)
-        : new Date();
+      const safeStartDate = edu.startDate ? new Date(edu.startDate) : new Date();
       const safeEndDate = edu.endDate ? new Date(edu.endDate) : null;
 
       const result = await prisma.candidate.create({
@@ -73,29 +71,25 @@ class CandidateRepository {
                   institution: String(edu.institution || "Não informada"),
                   degree: String(edu.degree || "Não informado"),
                   fieldOfStudy: String(edu.fieldOfStudy || "Não informado"),
-                  startDate: isNaN(safeStartDate.getTime())
-                    ? new Date()
-                    : safeStartDate,
-                  endDate:
-                    safeEndDate && !isNaN(safeEndDate.getTime())
-                      ? safeEndDate
-                      : null,
-                },
-              },
-            },
-          },
+                  startDate: isNaN(safeStartDate.getTime()) ? new Date() : safeStartDate,
+                  endDate: (safeEndDate && !isNaN(safeEndDate.getTime())) ? safeEndDate : null,
+                }
+              }
+            }
+          }
         },
         include: {
           resume: {
             include: {
-              educations: true,
-            },
-          },
-        },
+              educations: true
+            }
+          }
+        }
       });
 
       console.log("✅ [REPO] Registro completo inserido com sucesso!");
       return result;
+
     } catch (error: any) {
       console.error("❌ [REPO] Falha crítica no Prisma:", error.message);
       throw error;
@@ -103,12 +97,12 @@ class CandidateRepository {
   }
 
   async update(id: string, data: UpdateCandidateDTO) {
-    return prisma.candidate.update({
-      where: { id },
+    return prisma.candidate.update({ 
+      where: { id }, 
       data,
       include: {
-        resume: true,
-      },
+        resume: true
+      }
     });
   }
 

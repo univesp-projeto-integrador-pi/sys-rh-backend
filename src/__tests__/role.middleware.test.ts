@@ -95,6 +95,17 @@ describe("RoleMiddleware", () => {
       expect(res.status).toHaveBeenCalledWith(403);
       expect(next).not.toHaveBeenCalled();
     });
+
+    it('deve bloquear USER com 403', () => {
+      const req  = mockReqWithRole('USER');
+      const res  = mockRes();
+      const next = mockNext();
+
+      requireRole('ADMIN', 'RECRUITER')(req as Request, res as Response, next);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(next).not.toHaveBeenCalled();
+    });
   });
 
   describe("sem role no req", () => {

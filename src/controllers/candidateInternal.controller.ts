@@ -16,7 +16,7 @@ class CandidateInternalController {
     }
   }
 
-  async findById(req: Request<Params>, res: Response, next: NextFunction) {
+  async findById(req: Request, res: Response, next: NextFunction) {
     try {
       const candidate = await candidateService.findById(req.params.id);
       return res.status(200).json(candidate);
@@ -25,7 +25,7 @@ class CandidateInternalController {
     }
   }
 
-  async update(req: Request<Params>, res: Response, next: NextFunction) {
+  async update(req: Request, res: Response, next: NextFunction) {
     try {
       const candidate = await candidateService.update(req.params.id, req.body);
       return res.status(200).json(candidate);
@@ -34,7 +34,7 @@ class CandidateInternalController {
     }
   }
 
-  async delete(req: Request<Params>, res: Response, next: NextFunction) {
+  async delete(req: Request, res: Response, next: NextFunction) {
     try {
       await candidateService.delete(req.params.id);
       return res.status(204).send();
