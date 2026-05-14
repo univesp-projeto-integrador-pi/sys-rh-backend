@@ -1,8 +1,12 @@
-import { NextFunction, Request, Response } from 'express';
-import jobPositionService from '../services/jobPosition.service';
+import { NextFunction, Request, Response } from "express";
+import jobPositionService from "../services/jobPosition.service";
+
+// Tipagem dos params
+type Params = {
+  id: string;
+};
 
 class JobPositionAvailableController {
-
   async findAllOpen(_req: Request, res: Response, next: NextFunction) {
     try {
       console.log("[JobAvailableController] Listando todas as vagas abertas");

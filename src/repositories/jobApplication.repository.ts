@@ -1,5 +1,8 @@
-import prisma from '../config/client';
-import { CreateJobApplicationDTO, UpdateJobApplicationDTO } from '../dto/jobApplication.dto';
+import prisma from "../config/client";
+import {
+  CreateJobApplicationDTO,
+  UpdateJobApplicationDTO,
+} from "../dto/jobApplication.dto";
 
 class JobApplicationRepository {
   async findAll() {

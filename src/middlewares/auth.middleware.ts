@@ -1,8 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { AccessTokenPayload } from '../dto/auth.dto';
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { AccessTokenPayload } from "../dto/auth.dto";
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction) {
+export function authMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -10,7 +14,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     return res.status(401).json({ message: 'Token não fornecido ou malformatado' });
   }
 
-  const token = authHeader.split(' ')[1];
+  const token = authHeader.split(" ")[1];
 
   try {
     const secret = process.env.JWT_ACCESS_SECRET;

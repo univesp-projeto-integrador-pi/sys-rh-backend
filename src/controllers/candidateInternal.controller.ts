@@ -1,5 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
-import candidateService from '../services/candidate.service';
+import { Request, Response, NextFunction } from "express";
+import candidateService from "../services/candidate.service";
+
+// Tipagem dos parâmetros da rota
+type Params = {
+  id: string;
+};
 
 class CandidateInternalController {
   async findAll(req: Request, res: Response, next: NextFunction) {

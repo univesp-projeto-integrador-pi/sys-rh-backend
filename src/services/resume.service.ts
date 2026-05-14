@@ -9,11 +9,11 @@ class ResumeService {
     const candidate = await candidateRepository.findById(candidateId);
 
     if (!candidate || candidate.deletedAt !== null) {
-      throw new AppError('Candidato não encontrado', 404);
+      throw new AppError("Candidato não encontrado", 404);
     }
 
     const resume = await resumeRepository.findByCandidateId(candidateId);
-    if (!resume) throw new AppError('Currículo não encontrado', 404);
+    if (!resume) throw new AppError("Currículo não encontrado", 404);
     return resume;
   }
 
@@ -21,11 +21,11 @@ class ResumeService {
     const candidate = await candidateRepository.findById(candidateId);
 
     if (!candidate || candidate.deletedAt !== null) {
-      throw new AppError('Candidato não encontrado', 404);
+      throw new AppError("Candidato não encontrado", 404);
     }
 
     const existing = await resumeRepository.findByCandidateId(candidateId);
-    if (existing) throw new AppError('Candidato já possui um currículo', 409);
+    if (existing) throw new AppError("Candidato já possui um currículo", 409);
 
     return resumeRepository.create(candidateId, data);
   }
@@ -34,11 +34,11 @@ class ResumeService {
     const candidate = await candidateRepository.findById(candidateId);
 
     if (!candidate || candidate.deletedAt !== null) {
-      throw new AppError('Candidato não encontrado', 404);
+      throw new AppError("Candidato não encontrado", 404);
     }
 
     const resume = await resumeRepository.findByCandidateId(candidateId);
-    if (!resume) throw new AppError('Currículo não encontrado', 404);
+    if (!resume) throw new AppError("Currículo não encontrado", 404);
 
     return resumeRepository.update(resume.id, data);
   }

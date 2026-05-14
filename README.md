@@ -87,11 +87,6 @@ Candidate ──┤              │
                             └── InternalNote ── User
 ```
 
----
-### Imagem do Swagger
-![Veja o Swagger](swagger.png)
----
-
 ## 📚 Sobre o Express
 
 [Express](https://expressjs.com/) é um framework para Node.js que fornece recursos mínimos para construção de servidores web. Algumas características:
@@ -122,11 +117,12 @@ Candidate ──┤              │
 ├── package.json          # Dependências e scripts
 └── README.md             # Documentação
 ```
-### [Guide](GUIDE.md)
-### [Examples of requests](/EXAMPLES_OF_REQUESTS.md)
-### [Guia de Sobrevivência](/IMPORTANT_TERMS.md)
-### [Breve descrição sobre API](/BRIEF_DESCRIPTION.md)
-### [Sugestão de acompanhamento](/SUGESTION_FLOW.md)
+### [Guide](/docs/GUIDE.md)
+### [Visão extensa do sistema](/docs/COMPLETE_USER_GUIDE.md)
+### [Examples of requests](/docs/EXAMPLES_OF_REQUESTS.md)
+### [Guia de Sobrevivência](/docs/IMPORTANT_TERMS.md)
+### [Breve descrição sobre API](/docs/BRIEF_DESCRIPTION.md)
+### [Sugestão de acompanhamento](/docs/SUGESTION_FLOW.md)
 ---
 
 **Desenvolvido por [Univesp Projeto Integrador](https://github.com/univesp-projeto-integrador-pi)** 👨‍💻

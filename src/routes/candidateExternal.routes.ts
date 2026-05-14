@@ -15,5 +15,13 @@ router.get('/:id', authMiddleware, (req, res, next) => candidateExternalControll
 router.put('/:id', authMiddleware, validate(updateCandidateSchema), (req, res, next) => candidateExternalController.update(req, res, next));
 
 router.delete('/:id', authMiddleware, (req, res, next) => candidateExternalController.delete(req, res, next));
+router.post('/', validate(createCandidateSchema), candidateExternalController.create.bind(candidateExternalController));
+router.get('/email/:email', candidateExternalController.findByEmail.bind(candidateExternalController));
+router.get('/:id', candidateExternalController.findById.bind(candidateExternalController));
+router.put('/:id', validate(updateCandidateSchema), candidateExternalController.update.bind(candidateExternalController));
+router.delete('/:id', candidateExternalController.delete.bind(candidateExternalController));
+router.get('/:candidateId/resume', resumeController.findByCandidateId.bind(resumeController));
+router.post('/:candidateId/resume', resumeController.create.bind(resumeController));
+router.put('/:candidateId/resume', resumeController.update.bind(resumeController));
 
 export default router;

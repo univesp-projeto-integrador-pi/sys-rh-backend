@@ -1,6 +1,6 @@
-import { CreateCandidateDTO, UpdateCandidateDTO } from '../dto/candidate.dto';
-import candidateRepository from '../repositories/candidate.repository';
-import { AppError } from '../middlewares/errorHandler.middleware';
+import { CreateCandidateDTO, UpdateCandidateDTO } from "../dto/candidate.dto";
+import candidateRepository from "../repositories/candidate.repository";
+import { AppError } from "../middlewares/errorHandler.middleware";
 
 class CandidateService {
   async findAll() {
@@ -9,7 +9,7 @@ class CandidateService {
 
   async findById(id: string) {
     const candidate = await candidateRepository.findById(id);
-    if (!candidate) throw new AppError('Candidato não encontrado', 404);
+    if (!candidate) throw new AppError("Candidato não encontrado", 404);
     return candidate;
   }
 

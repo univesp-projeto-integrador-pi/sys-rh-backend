@@ -8,14 +8,12 @@ export function requireRole(...roles: Role[]) {
       res.status(403).json({
         message: 'Seu perfil ainda não possui permissões. Aguarde a configuração pelo administrador.'
       });
-      return;
     }
 
     if (!roles.includes(req.role as Role)) {
       res.status(403).json({
         message: `Acesso negado. Requer perfil: ${roles.join(' ou ')}`
       });
-      return;
     }
 
     next();

@@ -109,7 +109,7 @@ class CandidateRepository {
   async softDelete(id: string) {
     return prisma.candidate.update({
       where: { id },
-      data: { deletedAt: new Date() }
+      data: { deletedAt: new Date() },
     });
   }
 }
