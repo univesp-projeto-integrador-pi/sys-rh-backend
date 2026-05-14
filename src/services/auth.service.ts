@@ -27,10 +27,11 @@ class AuthService {
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
+    // Ajustado para passar a senha para o repositório como hashPassword
     const user = await userRepository.create({
       name: data.name,
       email: data.email,
-      password: hashedPassword,
+      password: hashedPassword, // O repositório vai mapear isso para hashPassword
     });
 
     return { id: user.id, name: user.name, email: user.email, role: user.role };
@@ -42,7 +43,8 @@ class AuthService {
     const user = await userRepository.findByEmail(data.email);
     if (!user) throw new AppError('Credenciais inválidas', 401);
 
-    const passwordMatch = await bcrypt.compare(data.password, user.password);
+    // CORREÇÃO: Alterado de user.password para user.hashPassword
+    const passwordMatch = await bcrypt.compare(data.password, user.hashPassword);
     if (!passwordMatch) throw new AppError('Credenciais inválidas', 401);
 
     const payload: AccessTokenPayload = { userId: user.id, email: user.email, role: user.role };
@@ -57,7 +59,7 @@ class AuthService {
     console.log(`[AuthService] Login bem-sucedido. Role: ${user.role}`);
 
     return {
-      accessToken, // ⚠️ O Frontend deve salvar isso como 'user_token'
+      accessToken,
       refreshToken,
       user: { 
         id: user.id, 

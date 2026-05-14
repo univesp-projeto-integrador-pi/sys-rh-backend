@@ -1,7 +1,6 @@
 import prisma from "../config/client";
 import { CreateUserDTO, UpdateUserDTO } from "../dto/user.dto";
 
-// Campos que podem ser expostos publicamente ou para o Admin (sem a senha)
 const userPublicSelect = {
   id: true,
   name: true,
@@ -38,7 +37,7 @@ class UserRepository {
 
   async findByEmail(email: string) {
     try {
-      // Usado para login. Aqui precisamos da senha para comparar o hash.
+      // Retorna todos os campos (incluindo hashPassword) para verificação de login
       return await prisma.user.findUnique({ where: { email } });
     } catch (error) {
       console.error(`❌ Erro ao buscar usuário por e-mail ${email}:`, error);
@@ -49,7 +48,12 @@ class UserRepository {
   async create(data: CreateUserDTO) {
     try {
       return await prisma.user.create({ 
-        data, 
+        data: {
+          name: data.name,
+          email: data.email,
+          role: data.role,
+          hashPassword: data.password, // MAPEAMENTO: password do DTO -> hashPassword do Banco
+        }, 
         select: userPublicSelect 
       });
     } catch (error) {
@@ -62,7 +66,11 @@ class UserRepository {
     try {
       return await prisma.user.update({ 
         where: { id }, 
-        data, 
+        data: {
+          ...data,
+          // Se houver senha no update, mapeia para hashPassword
+          ...(data.password && { hashPassword: data.password }) 
+        }, 
         select: userPublicSelect 
       });
     } catch (error) {

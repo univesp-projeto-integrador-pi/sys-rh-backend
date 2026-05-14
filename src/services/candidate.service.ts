@@ -19,7 +19,7 @@ class CandidateService {
 }
 
   async create(data: any) {
-    // 🔍 LOG DE INSPEÇÃO PROFUNDA
+    // LOG DE INSPEÇÃO
     console.log("-------------------------------------------------");
     console.log("⚙️ [SERVICE] Chaves recebidas no objeto 'data':", Object.keys(data));
     console.log("⚙️ [SERVICE] Conteúdo bruto de 'education':", data.education);
@@ -27,7 +27,7 @@ class CandidateService {
     const existing = await candidateRepository.findByEmail(data.email);
     if (existing) throw new AppError('Você já possui um perfil de candidato cadastrado.', 409);
     
-    // VERIFICAÇÃO À PROVA DE BALAS:
+    // VERIFICAÇÃO
     // Checa se 'education' existe, se é um objeto e se tem a instituição (mesmo que vazia)
     const hasEducationData = !!(
       data.education && 

@@ -28,9 +28,25 @@ const router = Router();
  */
 router.get('/', requireRole('ADMIN', 'RECRUITER'), jobApplicationController.findAll.bind(jobApplicationController));
 
-router.get('/candidate/:candidateId', jobApplicationController.findByCandidateId.bind(jobApplicationController));
+// 1. Rota para o usuário logado (DEVE vir antes de /:id)
+// Esta é a rota que o MyApplications.tsx chama: /api/v1/job-applications/me
+router.get(
+  '/me',
+  jobApplicationController.findMyApplications.bind(jobApplicationController)
+);
 
-router.get('/:id', jobApplicationController.findById.bind(jobApplicationController));
+// 2. Rota para Admin buscar por um candidato específico
+router.get(
+  '/candidate/:candidateId',
+  requireRole('ADMIN', 'RECRUITER'),
+  jobApplicationController.findByCandidateId.bind(jobApplicationController)
+);
+
+// 3. Rota de ID (Genérica - sempre por último entre os GETs)
+router.get(
+  '/:id',
+  jobApplicationController.findById.bind(jobApplicationController)
+);
 
 /**
  * @swagger

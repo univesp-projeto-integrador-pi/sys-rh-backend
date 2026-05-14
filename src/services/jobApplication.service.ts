@@ -5,27 +5,78 @@ import prisma from '../config/client';
 
 class JobApplicationService {
   
-  // Lista todas as candidaturas com os relacionamentos necessários para o Admin
   async findAll() {
-    console.log("[Service] Buscando candidaturas com relações (candidate e jobPosition)...");
+    console.log("===> [Service] Iniciando findAll de Candidaturas");
     
-    return await prisma.jobApplication.findMany({
+    const apps = await prisma.jobApplication.findMany({
+      where: {
+        deletedAt: null
+      },
       include: {
-        candidate: true,    // Traz os dados da tabela Candidate
-        position: {         // Traz os dados da tabela JobPosition (alias para jobPosition)
+        candidate: true,
+        position: {
           include: {
             department: true
           }
         }
       },
       orderBy: {
-        appliedAt: 'desc'   // Mais recentes primeiro (usar appliedAt, não createdAt)
+        appliedAt: 'desc'
       }
     });
+
+    console.log(`===> [Service] Candidaturas encontradas no banco local: ${apps.length}`);
+    return apps;
   }
 
-  // Criação de candidatura (Corrigido para receber argumentos separados)
+  async findByEmail(email: string) {
+    return await prisma.jobApplication.findMany({
+      where: {
+        candidate: {
+          email: email
+        }
+      },
+      include: {
+        position: {
+          include: {
+            department: true
+          }
+        }
+      },
+      orderBy: {
+        appliedAt: 'desc'
+      }
+    });
+  }  
+
+  async findByCandidateId(candidateId: string) {
+    console.log(`===> [Service] Buscando candidaturas para o candidato: ${candidateId}`);
+    
+    const apps = await prisma.jobApplication.findMany({
+      where: {
+        candidateId,
+        deletedAt: null
+      },
+      include: {
+        candidate: true,
+        position: {
+          include: {
+            department: true
+          }
+        }
+      },
+      orderBy: {
+        appliedAt: 'desc'
+      }
+    });
+
+    console.log(`===> [Service] Candidaturas encontradas: ${apps.length}`);
+    return apps;
+  }
+
   async create(positionId: string, userEmail: string) {
+    console.log(`===> [Service] Criando candidatura para ${userEmail} na vaga ${positionId}`);
+    
     const candidate = await prisma.candidate.findUnique({
       where: { email: userEmail }
     });
@@ -46,7 +97,7 @@ class JobApplicationService {
 
     return jobApplicationRepository.create({
       candidateId: candidate.id,
-      positionId: positionId
+      positionId: positionId,
     });
   }
 
@@ -54,6 +105,34 @@ class JobApplicationService {
     const application = await jobApplicationRepository.findById(id);
     if (!application) throw new AppError('Candidatura não encontrada', 404);
     return application;
+  }
+
+  async updateStage(id: string, data: { currentStage: string }, userId: string) {
+    console.log(`===> [Service] Atualizando etapa da candidatura ${id} para ${data.currentStage} por usuário ${userId}`);
+    
+    const application = await jobApplicationRepository.findById(id);
+    if (!application) {
+      throw new AppError('Candidatura não encontrada', 404);
+    }
+
+    const updated = await prisma.jobApplication.update({
+      where: { id },
+      data: {
+        currentStage: data.currentStage,
+        updatedAt: new Date()
+      },
+      include: {
+        candidate: true,
+        position: {
+          include: {
+            department: true
+          }
+        }
+      }
+    });
+
+    console.log(`===> [Service] Candidatura atualizada com sucesso`);
+    return updated;
   }
 
   async delete(id: string) {
