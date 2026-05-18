@@ -32,7 +32,7 @@ app.use(
     origin: [
       "http://localhost:5173",
       "http://127.0.0.1:5173",
-      "https://sys-rh-frontend1.vercel.app/",
+      "https://sys-rh-frontend1.vercel.app",
     ],
     credentials: true,
   }),
